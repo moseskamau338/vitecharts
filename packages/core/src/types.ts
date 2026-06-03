@@ -45,6 +45,10 @@ export interface SeriesOption {
   fillOpacity?: number;
   /** Key holding a per-point size value (turns scatter into a bubble chart). */
   size?: string;
+  /** Fade area/bar fills with a vertical gradient. */
+  gradient?: boolean;
+  /** SVG `stroke-dasharray` for a dashed line, e.g. `"6 4"`. */
+  dash?: string;
 }
 
 export interface AxisOption {
@@ -120,6 +124,10 @@ export interface ChartOptions {
   group?: string;
   /** Accessible label for the chart (sets role="img" + aria-label + <title>). */
   ariaLabel?: string;
+  /** Draw value labels on each datum. */
+  dataLabels?: boolean;
+  /** Chromeless inline mode — no axes, grid, padding, or tooltip. */
+  sparkline?: boolean;
 }
 
 // --------------------------------------------------------------------------
@@ -134,6 +142,8 @@ export interface ResolvedSeries {
   curve: CurveType;
   fillOpacity: number;
   size?: string;
+  gradient: boolean;
+  dash?: string;
   hidden: boolean;
 }
 
@@ -158,6 +168,8 @@ export interface CompiledSpec {
   stacked: boolean;
   innerRadius: number;
   annotations: Annotation[];
+  dataLabels: boolean;
+  sparkline: boolean;
 }
 
 /**

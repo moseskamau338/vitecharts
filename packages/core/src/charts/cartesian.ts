@@ -97,6 +97,9 @@ function drawFrame(ctx: ChartContext, bandX: boolean, stacked: boolean): Frame {
     max: spec.yAxis.max,
   });
 
+  // Sparkline: chromeless — scales only, no grid or axes.
+  if (spec.sparkline) return { x, y, left, right, top, bottom };
+
   const label = (anchor: string) => ({
     'text-anchor': anchor,
     'font-size': 11,
@@ -157,10 +160,43 @@ interface RawPoint extends PixelPoint {
   value: number;
 }
 
-function linePoints(sc: SeriesCtx, s: ResolvedSeries): PixelPoint[] {
+/** Paint reference for a series fill — a vertical gradient if requested. */
+function seriesFill(sc: SeriesCtx, s: ResolvedSeries, bottomOpacity = 0): string {
+  if (s.gradient && sc.renderer.gradient) {
+    return sc.renderer.gradient([
+      { offset: 0, color: s.color, opacity: s.fillOpacity },
+      { offset: 1, color: s.color, opacity: bottomOpacity },
+    ]);
+  }
+  return s.color;
+}
+
+/** Draw a value label above a datum when `dataLabels` is on. */
+function drawLabel(sc: SeriesCtx, value: number, cx: number, cy: number, parent: NodeHandle): void {
+  if (!sc.spec.dataLabels || !Number.isFinite(value)) return;
+  sc.renderer.text(
+    String(value),
+    {
+      x: cx,
+      y: cy - 8,
+      'text-anchor': 'middle',
+      'font-size': 10,
+      'font-family': sc.spec.theme.fontFamily,
+      fill: sc.spec.theme.labelColor,
+    },
+    parent,
+  );
+}
+
+function linePoints(sc: SeriesCtx, s: ResolvedSeries): RawPoint[] {
   const raw: RawPoint[] = [];
   for (const row of sc.spec.data) {
     const v = row[s.y];
+    if (v === null) {
+      // Explicit null → break the line (gap); missing keys are skipped instead.
+      raw.push({ x: centerX(sc.frame, row[sc.spec.x]), y: NaN, xRaw: row[sc.spec.x], value: NaN });
+      continue;
+    }
     if (!isNumber(v)) continue;
     raw.push({
       x: centerX(sc.frame, row[sc.spec.x]),
@@ -170,9 +206,12 @@ function linePoints(sc: SeriesCtx, s: ResolvedSeries): PixelPoint[] {
     });
   }
   // Downsample very dense series (preserves shape, keeps the path light).
-  const pts = raw.length > LTTB_THRESHOLD ? lttb(raw, LTTB_THRESHOLD) : raw;
-  for (const p of pts) record(sc, s, p.xRaw, p.value, p.x, p.y);
-  return pts.map((p) => ({ x: p.x, y: p.y }));
+  const hasGaps = raw.some((p) => !Number.isFinite(p.y));
+  const pts = !hasGaps && raw.length > LTTB_THRESHOLD ? lttb(raw, LTTB_THRESHOLD) : raw;
+  for (const p of pts) {
+    if (Number.isFinite(p.y)) record(sc, s, p.xRaw, p.value, p.x, p.y);
+  }
+  return pts;
 }
 
 function drawMarkers(
@@ -184,6 +223,7 @@ function drawMarkers(
   const { renderer, animation } = sc;
   const group = renderer.group({ class: 'vitecharts-markers' }, parent);
   points.forEach((p, j) => {
+    if (!Number.isFinite(p.y)) return;
     const dot = renderer.circle(
       { cx: p.x, cy: p.y, r: MARKER_RADIUS, fill: s.color, stroke: '#ffffff', 'stroke-width': 1.5 },
       group,
@@ -199,13 +239,22 @@ function drawMarkers(
 
 function drawLineSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle): void {
   const points = linePoints(sc, s);
-  const path = drawLine(sc.renderer, points, { stroke: s.color, width: 2, curve: s.curve }, parent);
+  const path = drawLine(
+    sc.renderer,
+    points,
+    { stroke: s.color, width: 2, curve: s.curve, dash: s.dash },
+    parent,
+  );
   if (sc.animation.enter) {
     sc.animation.track(
       animateDrawOn(path, polylineLength(points), sc.animation.config, { delay: sc.delay }),
     );
   }
   if (sc.spec.markers) drawMarkers(sc, s, points, parent);
+  if (sc.spec.dataLabels) {
+    const labels = sc.renderer.group({ class: 'vitecharts-labels' }, parent);
+    for (const p of points) drawLabel(sc, p.value, p.x, p.y, labels);
+  }
 }
 
 function drawAreaSeries(
@@ -234,15 +283,30 @@ function drawAreaSeries(
   const fill = drawArea(
     sc.renderer,
     areaPts,
-    { fill: s.color, opacity: s.fillOpacity, curve: s.curve },
+    { fill: seriesFill(sc, s), opacity: s.gradient ? 1 : s.fillOpacity, curve: s.curve },
     parent,
   );
-  const line = drawLine(sc.renderer, topPts, { stroke: s.color, width: 2, curve: s.curve }, parent);
+  const line = drawLine(
+    sc.renderer,
+    topPts,
+    { stroke: s.color, width: 2, curve: s.curve, dash: s.dash },
+    parent,
+  );
   if (sc.animation.enter) {
     sc.animation.track(animateFadeIn(fill, sc.animation.config, { delay: sc.delay }));
     sc.animation.track(
       animateDrawOn(line, polylineLength(topPts), sc.animation.config, { delay: sc.delay }),
     );
+  }
+  if (sc.spec.dataLabels) {
+    const labels = sc.renderer.group({ class: 'vitecharts-labels' }, parent);
+    sc.spec.data.forEach((row, i) => {
+      const v = row[s.y];
+      if (isNumber(v)) {
+        const sp = stack?.[i];
+        drawLabel(sc, v, centerX(frame, row[sc.spec.x]), frame.y.map(sp ? sp.y1 : v), labels);
+      }
+    });
   }
 }
 
@@ -280,7 +344,7 @@ function drawBarSeries(
     const rect = drawBar(
       sc.renderer,
       { x, y, width: barWidth, height: h },
-      { fill: s.color, opacity: s.fillOpacity, radius: 2 },
+      { fill: seriesFill(sc, s, 0.55), opacity: s.gradient ? 1 : s.fillOpacity, radius: 2 },
       parent,
     );
     if (animation.enter) {
@@ -289,6 +353,7 @@ function drawBarSeries(
       });
       animation.track(grow);
     }
+    if (sc.spec.dataLabels) drawLabel(sc, v, x + barWidth / 2, y, parent);
   });
 }
 
@@ -318,6 +383,7 @@ function drawScatterSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle)
         sc.delay + (j / Math.max(1, sc.spec.data.length)) * animation.config.duration;
       animation.track(animateAttr(dot, 'r', 0, r, animation.config, { delay: popDelay }));
     }
+    if (sc.spec.dataLabels) drawLabel(sc, v, cx, cy - r, group);
   });
 }
 

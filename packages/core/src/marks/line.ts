@@ -6,6 +6,7 @@ import type { LineStyle, PixelPoint } from './types.js';
 /** Build the SVG path `d` string for a polyline through pixel points. */
 export function linePath(points: PixelPoint[], style: LineStyle): string {
   const generator = d3line<PixelPoint>()
+    .defined((p) => Number.isFinite(p.y)) // break the line at NaN (null gaps)
     .x((p) => p.x)
     .y((p) => p.y)
     .curve(curveFor(style.curve));

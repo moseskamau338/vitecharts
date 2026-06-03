@@ -4,7 +4,7 @@ export { Chart } from './chart.js';
 // Renderers
 export { SvgRenderer } from './renderer/svg.js';
 export { CanvasRenderer } from './renderer/canvas.js';
-export type { Renderer, NodeHandle, Attrs } from './renderer/types.js';
+export type { Renderer, NodeHandle, Attrs, GradientStop } from './renderer/types.js';
 
 // Spec compiler
 export { compileSpec, DEFAULT_PADDING } from './spec/compile.js';

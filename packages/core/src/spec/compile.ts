@@ -50,16 +50,23 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
       curve: s.curve ?? ('linear' as const),
       fillOpacity: s.fillOpacity ?? (type === 'area' ? 0.25 : 1),
       size: s.size,
+      gradient: s.gradient ?? false,
+      dash: s.dash,
       hidden: false,
     };
   });
+
+  const sparkline = options.sparkline ?? false;
+  const padding = sparkline
+    ? { top: 2, right: 2, bottom: 2, left: 2 }
+    : { ...DEFAULT_PADDING, ...options.padding };
 
   return {
     type: options.type,
     data: [...options.data],
     x: options.x,
     series,
-    padding: { ...DEFAULT_PADDING, ...options.padding },
+    padding,
     xAxis: resolveAxis(options.axes?.x, 6),
     yAxis: resolveAxis(options.axes?.y, 5),
     theme,
@@ -67,5 +74,7 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
     stacked: options.stack ?? false,
     innerRadius: options.innerRadius ?? (options.type === 'donut' ? 0.6 : 0),
     annotations: options.annotations ?? [],
+    dataLabels: options.dataLabels ?? false,
+    sparkline,
   };
 }

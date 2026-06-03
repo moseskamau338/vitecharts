@@ -33,6 +33,19 @@ export interface Renderer {
   circle(attrs?: Attrs, parent?: NodeHandle): NodeHandle;
   text(content: string, attrs?: Attrs, parent?: NodeHandle): NodeHandle;
 
+  /**
+   * Define a linear gradient and return a paint reference (e.g. `url(#id)`).
+   * Optional — backends without gradient support can omit it; callers fall back
+   * to a solid color.
+   */
+  gradient?(stops: GradientStop[], vertical?: boolean): string;
+
   /** Unmount and release the surface. */
   destroy(): void;
+}
+
+export interface GradientStop {
+  offset: number;
+  color: string;
+  opacity?: number;
 }

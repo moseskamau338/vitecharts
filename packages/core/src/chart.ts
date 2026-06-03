@@ -139,9 +139,9 @@ export class Chart {
     theme: ResolvedTheme,
   ): void {
     const t = options.tooltip;
-    const tooltipOn = t !== false;
+    const tooltipOn = t !== false && !options.sparkline;
     const custom = typeof t === 'object' ? t.render : undefined;
-    const crosshairOn = options.crosshair ?? tooltipOn;
+    const crosshairOn = (options.crosshair ?? tooltipOn) && !options.sparkline;
 
     if (tooltipOn) this.tooltip = new Tooltip(container, theme, custom);
 
