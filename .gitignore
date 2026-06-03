@@ -6,5 +6,7 @@ coverage/
 .DS_Store
 *.log
 .vite/
+apps/docs/.vitepress/cache/
+apps/docs/.vitepress/dist/
 **/.vitepress/cache/
 **/.vitepress/dist/
