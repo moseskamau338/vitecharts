@@ -50,6 +50,7 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
       curve: s.curve ?? ('linear' as const),
       fillOpacity: s.fillOpacity ?? (type === 'area' ? 0.25 : 1),
       size: s.size,
+      hidden: false,
     };
   });
 

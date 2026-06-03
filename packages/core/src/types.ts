@@ -1,8 +1,13 @@
 import type { AnimateOption, AnimationConfig } from './anim/presets.js';
 import type { TweenHandle } from './anim/tween.js';
+import type { LegendPosition } from './interaction/legend.js';
+import type { SceneSink, TooltipRenderer } from './interaction/types.js';
 import type { Renderer } from './renderer/types.js';
 import type { ScaleType } from './scales/index.js';
 import type { ResolvedTheme, ThemeOption } from './theme.js';
+
+export type TooltipOption = boolean | { shared?: boolean; render?: TooltipRenderer };
+export type LegendOption = boolean | { position?: LegendPosition };
 
 export type Row = Record<string, unknown>;
 
@@ -75,6 +80,12 @@ export interface ChartOptions {
   markers?: boolean;
   /** Stack area/bar series instead of overlaying/grouping them. */
   stack?: boolean;
+  /** Tooltip: `true`/`false`, or `{ shared, render }`. Defaults to enabled. */
+  tooltip?: TooltipOption;
+  /** Interactive legend: `true`/`false`, or `{ position }`. Defaults to disabled. */
+  legend?: LegendOption;
+  /** Show a crosshair line on hover. Defaults to enabled when the tooltip is. */
+  crosshair?: boolean;
 }
 
 // --------------------------------------------------------------------------
@@ -89,6 +100,7 @@ export interface ResolvedSeries {
   curve: CurveType;
   fillOpacity: number;
   size?: string;
+  hidden: boolean;
 }
 
 export interface ResolvedAxis {
@@ -134,6 +146,8 @@ export interface ChartContext {
   height: number;
   spec: CompiledSpec;
   animation: ChartAnimation;
+  /** Sink for the interaction model (hit-test points + bounds). */
+  scene: SceneSink;
 }
 
 export interface ChartType {

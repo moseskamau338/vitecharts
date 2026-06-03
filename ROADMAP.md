@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–3 complete — core engine, animation, and the cartesian chart pack (line/area/bar/scatter/combo).
+> **Status:** Phases 0–4 (core) complete — engine, animation, cartesian pack, and interaction (tooltip/crosshair/legend/events).
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -180,9 +180,9 @@ Tracking against ApexCharts' published feature set. ✅ shipped · 🚧 in progr
 | ---------------------------------------------- | :----: |
 | Animations: entrance / update / morph          |   🚧   |
 | Dynamic data update (streaming/append)         |   ⬜   |
-| Tooltip (shared, custom, fixed)                |   ⬜   |
-| Crosshairs / markers                           |   ⬜   |
-| Legend (interactive toggle, positions)         |   ⬜   |
+| Tooltip (shared, custom, fixed)                |   ✅   |
+| Crosshairs / markers                           |   ✅   |
+| Legend (interactive toggle, positions)         |   ✅   |
 | Zoom (x/y/xy) + pan                            |   ⬜   |
 | Brush / scrubbing + synced charts              |   ⬜   |
 | Selection + range select events                |   ⬜   |
@@ -284,19 +284,21 @@ horizontal bars — follow-ups once interaction (Phase 4) lands.
 **Exit criteria:** all cartesian types render with theming + animation. ✅
 _6 chart-type tests (bar grouped/stacked, area, scatter, bubble, combo)._
 
-### Phase 4 — Interaction Layer
+### Phase 4 — Interaction Layer — ✅ CORE COMPLETE
 
 **Goal:** tooltips, zoom/pan, crosshairs, legend, toolbar.
 
-- Hit-testing (quadtree for points; band lookups for bars/time).
-- Tooltip system: shared/individual, follow-cursor/fixed, fully custom render slot.
-- Crosshairs + axis markers.
-- Interactive legend (toggle series, hover-highlight, positions, scrollable).
-- Zoom (x/y/xy), pan, double-click reset; wheel + drag-rect select.
-- Toolbar component (hamburger/menu) with zoom/pan/reset + export hooks.
-- Event bus: `dataPointSelection`, `zoomed`, `legendClick`, `markerClick`, etc.
+- ✅ Nearest-x hit-testing (chart types emit an interaction model of plotted points).
+- ✅ Tooltip system: shared, default + fully custom render slot, theme-aware.
+- ✅ Crosshair line on hover.
+- ✅ Interactive legend (toggle series visibility, positions).
+- ✅ Typed event bus: `pointerMove`, `pointerLeave`, `markerClick`, `legendClick`.
 
-**Exit criteria:** fully interactive cartesian charts matching Apex interaction UX.
+**Deferred:** zoom (x/y/xy) + pan + drag-select, the toolbar component (hamburger menu),
+hover-highlight/dimming. These pair naturally with brushing (Phase 5) and export (Phase 7).
+
+**Exit criteria:** interactive cartesian charts with tooltip + crosshair + legend + events. ✅
+_6 interaction tests (tooltip show/hide, crosshair, events, legend toggle, disable)._
 
 ### Phase 5 — Brushing, Scrubbing & Sync
 

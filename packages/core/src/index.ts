@@ -73,6 +73,19 @@ export { DEFAULT_COLORS } from './palette.js';
 // Chart registry
 export { registry } from './charts/registry.js';
 
+// Interaction + events
+export { Emitter } from './events.js';
+export { Tooltip } from './interaction/tooltip.js';
+export { Legend, type LegendPosition } from './interaction/legend.js';
+export { InteractionController } from './interaction/controller.js';
+export type {
+  PlotPoint,
+  XGroup,
+  InteractionModel,
+  ChartEventMap,
+  TooltipRenderer,
+} from './interaction/types.js';
+
 // Public types
 export type {
   ChartOptions,
@@ -87,6 +100,8 @@ export type {
   ChartType,
   ChartContext,
   ChartAnimation,
+  TooltipOption,
+  LegendOption,
   Row,
 } from './types.js';
 

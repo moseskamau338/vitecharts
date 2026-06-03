@@ -13,6 +13,7 @@ import { buildScale, type PositionScale } from '../scales/index.js';
 import { isNumber } from '../util/guards.js';
 import type { ChartContext, ChartType, ResolvedSeries } from '../types.js';
 import type { NodeHandle, Renderer } from '../renderer/types.js';
+import type { InteractionModel, PlotPoint, XGroup } from '../interaction/types.js';
 
 const MARKER_RADIUS = 4;
 const BAR_GAP = 0.85; // fraction of the available slot a bar fills
@@ -132,13 +133,32 @@ interface SeriesCtx {
   spec: ChartContext['spec'];
   animation: ChartContext['animation'];
   delay: number;
+  /** Index of this series in the original (unfiltered) series list. */
+  seriesIndex: number;
+  /** Collect a plotted point for the interaction model. */
+  collect: (point: PlotPoint) => void;
+}
+
+function record(
+  sc: SeriesCtx,
+  s: ResolvedSeries,
+  xRaw: unknown,
+  value: number,
+  cx: number,
+  cy: number,
+): void {
+  sc.collect({ seriesIndex: sc.seriesIndex, name: s.name, color: s.color, xRaw, value, cx, cy });
 }
 
 function linePoints(sc: SeriesCtx, s: ResolvedSeries): PixelPoint[] {
   const points: PixelPoint[] = [];
   for (const row of sc.spec.data) {
     const v = row[s.y];
-    if (isNumber(v)) points.push({ x: centerX(sc.frame, row[sc.spec.x]), y: sc.frame.y.map(v) });
+    if (!isNumber(v)) continue;
+    const cx = centerX(sc.frame, row[sc.spec.x]);
+    const cy = sc.frame.y.map(v);
+    points.push({ x: cx, y: cy });
+    record(sc, s, row[sc.spec.x], v, cx, cy);
   }
   return points;
 }
@@ -196,6 +216,7 @@ function drawAreaSeries(
     const y0 = frame.y.map(sp ? sp.y0 : 0);
     areaPts.push({ x: cx, y: y1, y0 });
     topPts.push({ x: cx, y: y1 });
+    record(sc, s, row[sc.spec.x], v, cx, y1);
   });
 
   const fill = drawArea(
@@ -243,6 +264,7 @@ function drawBarSeries(
     const x = slotLeft + (slot - barWidth) / 2;
     const y = Math.min(top, bottom);
     const h = Math.abs(bottom - top);
+    record(sc, s, row[sc.spec.x], v, x + barWidth / 2, top);
     const rect = drawBar(
       sc.renderer,
       { x, y, width: barWidth, height: h },
@@ -278,6 +300,7 @@ function drawScatterSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle)
       { cx, cy, r, fill: s.color, 'fill-opacity': 0.7, stroke: s.color, 'stroke-width': 1 },
       group,
     );
+    record(sc, s, row[sc.spec.x], v, cx, cy);
     if (animation.enter) {
       const popDelay =
         sc.delay + (j / Math.max(1, sc.spec.data.length)) * animation.config.duration;
@@ -286,23 +309,44 @@ function drawScatterSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle)
   });
 }
 
+/** Bucket collected points by x position into sorted groups for hit-testing. */
+function buildGroups(points: PlotPoint[]): XGroup[] {
+  const byX = new Map<number, XGroup>();
+  for (const p of points) {
+    const key = Math.round(p.cx);
+    let g = byX.get(key);
+    if (!g) {
+      g = { x: p.cx, xRaw: p.xRaw, points: [] };
+      byX.set(key, g);
+    }
+    g.points.push(p);
+  }
+  return [...byX.values()].sort((a, b) => a.x - b.x);
+}
+
 function render(ctx: ChartContext): void {
   const { renderer, spec, animation } = ctx;
-  const hasBar = spec.series.some((s) => s.type === 'bar');
+  const hasBar = spec.series.some((s) => s.type === 'bar' && !s.hidden);
   const frame = drawFrame(ctx, hasBar, spec.stacked);
   const plot = renderer.group({ class: 'vitecharts-series' });
   const stacks = spec.stacked ? stackSeries(ctx) : null;
 
-  const barSeries = spec.series.filter((s) => s.type === 'bar');
+  const collected: PlotPoint[] = [];
+  const collect = (p: PlotPoint) => collected.push(p);
+
+  const barSeries = spec.series.filter((s) => s.type === 'bar' && !s.hidden);
   let barIndex = 0;
 
   spec.series.forEach((s, i) => {
+    if (s.hidden) return;
     const sc: SeriesCtx = {
       renderer,
       frame,
       spec,
       animation,
       delay: animation.config.delay + i * animation.config.stagger,
+      seriesIndex: i,
+      collect,
     };
     switch (s.type) {
       case 'bar':
@@ -319,6 +363,12 @@ function render(ctx: ChartContext): void {
         drawLineSeries(sc, s, plot);
     }
   });
+
+  const model: InteractionModel = {
+    bounds: { left: frame.left, right: frame.right, top: frame.top, bottom: frame.bottom },
+    groups: buildGroups(collected),
+  };
+  ctx.scene.setModel(model);
 }
 
 /** One renderer for every cartesian chart type; per-series `type` enables combos. */
