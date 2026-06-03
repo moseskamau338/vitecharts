@@ -67,6 +67,21 @@ export interface Padding {
   left: number;
 }
 
+/** A chart annotation drawn over the plot area. */
+export interface Annotation {
+  type: 'xLine' | 'yLine' | 'region' | 'point';
+  /** x value (xLine / point) or region x-start. */
+  x?: unknown;
+  /** region x-end. */
+  x2?: unknown;
+  /** y value (yLine / point) or region y-start. */
+  y?: number;
+  /** region y-end. */
+  y2?: number;
+  label?: string;
+  color?: string;
+}
+
 export interface ChartOptions {
   type: ChartTypeName;
   data: ReadonlyArray<Row>;
@@ -97,6 +112,8 @@ export interface ChartOptions {
   crosshair?: boolean;
   /** Inner radius as a fraction of the outer radius (0–1) for pie/donut/radial. */
   innerRadius?: number;
+  /** Annotations drawn over the plot (x/y lines, regions, points). */
+  annotations?: Annotation[];
 }
 
 // --------------------------------------------------------------------------
@@ -134,6 +151,7 @@ export interface CompiledSpec {
   markers: boolean;
   stacked: boolean;
   innerRadius: number;
+  annotations: Annotation[];
 }
 
 /**

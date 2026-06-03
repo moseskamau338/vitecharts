@@ -1,6 +1,7 @@
 import { resolveAnimation } from './anim/presets.js';
 import type { TweenHandle } from './anim/tween.js';
 import { registry } from './charts/registry.js';
+import { downloadFile, serializeSvg, svgToPngDataUrl, toCSV, toJSON } from './export/index.js';
 import { Emitter } from './events.js';
 import { InteractionController } from './interaction/controller.js';
 import { Legend, type LegendPosition } from './interaction/legend.js';
@@ -148,6 +149,46 @@ export class Chart {
     });
     // Force a redraw (new options ref) without an enter animation.
     this.options.value = { ...this.options.value };
+  }
+
+  /** Serialize the chart to a standalone SVG string. */
+  toSVG(): string {
+    return serializeSvg(this.renderer.mount);
+  }
+
+  /** Rasterize the chart to a PNG data URL (browser only). */
+  toPNG(scale = 2): Promise<string> {
+    return svgToPngDataUrl(this.renderer.mount, scale);
+  }
+
+  /** Serialize the current dataset to CSV. */
+  toCSV(): string {
+    const o = this.options.value;
+    return toCSV(
+      o.data,
+      o.x,
+      o.series.map((s) => s.y),
+    );
+  }
+
+  /** Serialize the chart config + data to JSON. */
+  toJSON(): string {
+    return toJSON(this.options.value);
+  }
+
+  /** Download the chart as `svg` | `png` | `csv` | `json`. */
+  async download(
+    format: 'svg' | 'png' | 'csv' | 'json',
+    filename = `chart.${format}`,
+  ): Promise<void> {
+    if (format === 'svg') downloadFile(filename, this.toSVG(), 'image/svg+xml');
+    else if (format === 'csv') downloadFile(filename, this.toCSV(), 'text/csv');
+    else if (format === 'json') downloadFile(filename, this.toJSON(), 'application/json');
+    else {
+      const dataUrl = await this.toPNG();
+      const blob = await (await fetch(dataUrl)).blob();
+      downloadFile(filename, blob, 'image/png');
+    }
   }
 
   /** Subscribe to a chart event. Returns an unsubscribe function. */

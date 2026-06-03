@@ -9,6 +9,9 @@ export type { Renderer, NodeHandle, Attrs } from './renderer/types.js';
 // Spec compiler
 export { compileSpec, DEFAULT_PADDING } from './spec/compile.js';
 
+// Export utilities
+export { serializeSvg, svgToPngDataUrl, toCSV, toJSON, downloadFile } from './export/index.js';
+
 // Scales
 export { buildScale, buildColorScale, type PositionScale, type ScaleType } from './scales/index.js';
 
@@ -102,6 +105,7 @@ export type {
   ChartAnimation,
   TooltipOption,
   LegendOption,
+  Annotation,
   Row,
 } from './types.js';
 

@@ -324,6 +324,77 @@ function buildGroups(points: PlotPoint[]): XGroup[] {
   return [...byX.values()].sort((a, b) => a.x - b.x);
 }
 
+function drawAnnotations(ctx: ChartContext, frame: Frame): void {
+  const { renderer, spec } = ctx;
+  if (spec.annotations.length === 0) return;
+  const g = renderer.group({ class: 'vitecharts-annotations' });
+  const labelAttrs = (x: number, y: number, anchor: string, color: string) => ({
+    x,
+    y,
+    fill: color,
+    'text-anchor': anchor,
+    'font-size': 10,
+    'font-family': spec.theme.fontFamily,
+  });
+
+  for (const a of spec.annotations) {
+    const color = a.color ?? '#e53935';
+    if (a.type === 'yLine' && a.y != null) {
+      const py = frame.y.map(a.y);
+      renderer.line(
+        {
+          x1: frame.left,
+          x2: frame.right,
+          y1: py,
+          y2: py,
+          stroke: color,
+          'stroke-dasharray': '4 3',
+        },
+        g,
+      );
+      if (a.label) renderer.text(a.label, labelAttrs(frame.right - 4, py - 4, 'end', color), g);
+    } else if (a.type === 'xLine' && a.x != null) {
+      const px = frame.x.map(a.x) + frame.x.bandwidth / 2;
+      renderer.line(
+        {
+          x1: px,
+          x2: px,
+          y1: frame.top,
+          y2: frame.bottom,
+          stroke: color,
+          'stroke-dasharray': '4 3',
+        },
+        g,
+      );
+      if (a.label) renderer.text(a.label, labelAttrs(px + 4, frame.top + 10, 'start', color), g);
+    } else if (a.type === 'region') {
+      const x1 = a.x != null ? frame.x.map(a.x) : frame.left;
+      const x2 = a.x2 != null ? frame.x.map(a.x2) + frame.x.bandwidth : frame.right;
+      const y1 = a.y != null ? frame.y.map(a.y) : frame.top;
+      const y2 = a.y2 != null ? frame.y.map(a.y2) : frame.bottom;
+      renderer.rect(
+        {
+          x: Math.min(x1, x2),
+          y: Math.min(y1, y2),
+          width: Math.abs(x2 - x1),
+          height: Math.abs(y2 - y1),
+          fill: color,
+          'fill-opacity': 0.1,
+        },
+        g,
+      );
+    } else if (a.type === 'point' && a.x != null && a.y != null) {
+      const px = frame.x.map(a.x) + frame.x.bandwidth / 2;
+      const py = frame.y.map(a.y);
+      renderer.circle(
+        { cx: px, cy: py, r: 4, fill: color, stroke: '#fff', 'stroke-width': 1.5 },
+        g,
+      );
+      if (a.label) renderer.text(a.label, labelAttrs(px, py - 8, 'middle', color), g);
+    }
+  }
+}
+
 function render(ctx: ChartContext): void {
   const { renderer, spec, animation } = ctx;
   const hasBar = spec.series.some((s) => s.type === 'bar' && !s.hidden);
@@ -363,6 +434,8 @@ function render(ctx: ChartContext): void {
         drawLineSeries(sc, s, plot);
     }
   });
+
+  drawAnnotations(ctx, frame);
 
   const model: InteractionModel = {
     bounds: { left: frame.left, right: frame.right, top: frame.top, bottom: frame.bottom },

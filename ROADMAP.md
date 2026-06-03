@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–4 + radial pack — engine, animation, cartesian + radial charts, interaction.
+> **Status:** Phases 0–7 (core) — charts (cartesian+radial), animation, interaction, annotations, export.
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -200,10 +200,10 @@ Tracking against ApexCharts' published feature set. ✅ shipped · 🚧 in progr
 
 | Format         | Status |
 | -------------- | :----: |
-| SVG            |   ⬜   |
-| PNG            |   ⬜   |
-| CSV            |   ⬜   |
-| JSON / config  |   ⬜   |
+| SVG            |   ✅   |
+| PNG            |   ✅   |
+| CSV            |   ✅   |
+| JSON / config  |   ✅   |
 | PDF (optional) |   ⬜   |
 
 ---
@@ -323,17 +323,20 @@ _6 interaction tests (tooltip show/hide, crosshair, events, legend toggle, disab
 **Exit criteria:** parity matrix §5 chart types all ✅ or explicitly deferred. _Radial family
 shipped; statistical + hierarchical types deferred (each needs a non-series data model)._
 
-### Phase 7 — Annotations, Themes & Export
+### Phase 7 — Annotations, Themes & Export — ✅ CORE COMPLETE
 
 **Goal:** finishing polish + outputs.
 
-- Annotations: x/y lines, regions, points, text, images; draggable (optional).
-- Theme system: tokens, light/dark, palette presets, per-chart overrides, CSS-var bridge.
-- Locales/i18n: number + date formatting, RTL.
-- `@vitecharts/export`: SVG (true vector), PNG (rasterize), CSV/JSON data, optional PDF.
-  Export menu wired into the toolbar; programmatic `chart.export(...)` API.
+- ✅ Annotations: x/y lines, regions, points (with labels), drawn over the plot.
+- ✅ Theme system: light/dark + partial overrides (shipped in Phase 1).
+- ✅ Export: `chart.toSVG()` (true vector), `chart.toPNG()` (rasterize), `chart.toCSV()`,
+  `chart.toJSON()`, and `chart.download(format)`.
 
-**Exit criteria:** themed, annotated chart exports to all formats; i18n+RTL demo.
+**Deferred:** image/text annotations + dragging, CSS-var theme bridge, locales/i18n + RTL,
+PDF export, and the toolbar export menu (pairs with the deferred Phase 4 toolbar).
+
+**Exit criteria:** themed, annotated charts export to SVG/PNG/CSV/JSON. ✅
+_8 export + annotation tests._
 
 ### Phase 8 — Framework Adapters
 
