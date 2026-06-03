@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–10 (core scope) — full engine, chart catalog, interaction, brush/sync, export, adapters, a11y, perf (LTTB), and an ApexCharts compat shim.
+> **Status:** Production-grade core — full chart catalog (incl. candlestick/boxplot/heatmap/funnel/range), animation with update-morph, zoom/pan/toolbar, brush/sync, export, adapters, and an ApexCharts compat shim.
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -155,22 +155,22 @@ Tracking against ApexCharts' published feature set. ✅ shipped · 🚧 in progr
 | Spline / smooth                  |   ✅   |
 | Column / Bar (grouped/stack)     |   ✅   |
 | 100% stacked                     |   ⬜   |
-| Range bar / range area           |   ⬜   |
+| Range bar / range area           |   ✅   |
 | Bar with negative values         |   ⬜   |
-| Candlestick (OHLC)               |   ⬜   |
-| Boxplot                          |   ⬜   |
+| Candlestick (OHLC)               |   ✅   |
+| Boxplot                          |   ✅   |
 | Scatter                          |   ✅   |
 | Bubble                           |   ✅   |
-| Heatmap                          |   ⬜   |
+| Heatmap                          |   ✅   |
 | Treemap                          |   ⬜   |
 | Pie / Donut                      |   ✅   |
 | Radial bar / gauge               |   ✅   |
 | Radar                            |   ✅   |
 | Polar area                       |   ✅   |
-| Funnel / Pyramid                 |   ⬜   |
+| Funnel / Pyramid                 |   ✅   |
 | Timeline / Rangebar (Gantt-lite) |   ⬜   |
 | Slope                            |   ⬜   |
-| Sparkline (inline)               |   ⬜   |
+| Sparkline (inline)               |   ✅   |
 | Combo / Mixed                    |   ✅   |
 | Synced / brush charts            |   ⬜   |
 
@@ -178,18 +178,18 @@ Tracking against ApexCharts' published feature set. ✅ shipped · 🚧 in progr
 
 | Feature                                        | Status |
 | ---------------------------------------------- | :----: |
-| Animations: entrance / update / morph          |   🚧   |
+| Animations: entrance / update / morph          |   ✅   |
 | Dynamic data update (streaming/append)         |   ⬜   |
 | Tooltip (shared, custom, fixed)                |   ✅   |
 | Crosshairs / markers                           |   ✅   |
 | Legend (interactive toggle, positions)         |   ✅   |
-| Zoom (x/y/xy) + pan                            |   ⬜   |
+| Zoom (x/y/xy) + pan                            |   ✅   |
 | Brush / scrubbing + synced charts              |   ⬜   |
 | Selection + range select events                |   ⬜   |
-| Toolbar (zoom, pan, reset, export menu)        |   ⬜   |
+| Toolbar (zoom, pan, reset, export menu)        |   ✅   |
 | Annotations (x/y/point/image/text)             |   ⬜   |
-| Data labels                                    |   ⬜   |
-| Gradients, patterns, dropshadow                |   ⬜   |
+| Data labels                                    |   ✅   |
+| Gradients, patterns, dropshadow                |   🚧   |
 | Responsive breakpoints                         |   ⬜   |
 | Themes (light/dark/custom palettes)            |   ⬜   |
 | Locales / i18n number+date formatting          |   ⬜   |
@@ -257,9 +257,8 @@ _31 unit tests across signals, scales, marks, compiler, Chart API, and the Canva
 
 **Deferred (intentionally, with reasons):**
 
-- ⏭️ **FLIP update-morph** (smooth value interpolation on data change). The current
-  clear-and-redraw model snaps updates; true morphing needs keyed node retention.
-  Folding this in alongside the retained-node work in Phase 9.
+- ✅ **FLIP update-morph** — bars slide + resize from their previous geometry on data
+  change (bar-race), via a per-frame geometry snapshot; value count-up labels; hover emphasis.
 - ⏭️ **bar grow / arc/donut sweep** are built + unit-tested as helpers but only become
   visible once the bar (Phase 3) and pie/donut (Phase 6) chart types exist.
 - ⏭️ **Visual-regression baselines** (Playwright) — deferred until more chart types
@@ -294,8 +293,9 @@ _6 chart-type tests (bar grouped/stacked, area, scatter, bubble, combo)._
 - ✅ Interactive legend (toggle series visibility, positions).
 - ✅ Typed event bus: `pointerMove`, `pointerLeave`, `markerClick`, `legendClick`.
 
-**Deferred:** zoom (x/y/xy) + pan + drag-select, the toolbar component (hamburger menu),
-hover-highlight/dimming. These pair naturally with brushing (Phase 5) and export (Phase 7).
+- ✅ Zoom (wheel + selection) + pan + reset; a toolbar with an export menu; hover emphasis.
+
+**Deferred:** y-axis zoom and a persistent dataZoom overview slider.
 
 **Exit criteria:** interactive cartesian charts with tooltip + crosshair + legend + events. ✅
 _6 interaction tests (tooltip show/hide, crosshair, events, legend toggle, disable)._
@@ -319,8 +319,8 @@ playback playhead, and synced zoom (zoom itself is deferred from Phase 4).
 
 - ✅ Pie, donut (with center total), radial bar/gauge, polar area, radar — sharing a
   radial geometry helper and the arc-sweep / fade choreography.
-- ⏭️ Candlestick + OHLC, boxplot (statistical transforms).
-- ⏭️ Heatmap, treemap, funnel/pyramid, timeline/rangebar, slope.
+- ✅ Candlestick + OHLC, boxplot.
+- ✅ Heatmap, funnel/pyramid, range bar/area. ⏭️ treemap, timeline, slope, sunburst.
 
 **Exit criteria:** parity matrix §5 chart types all ✅ or explicitly deferred. _Radial family
 shipped; statistical + hierarchical types deferred (each needs a non-series data model)._
