@@ -108,9 +108,12 @@ Planned: `@vitecharts/react`, `@vitecharts/vue`, `@vitecharts/svelte`, `@vitecha
 | Package               | Description                                     |
 | --------------------- | ----------------------------------------------- |
 | `@vitecharts/core`    | Engine: renderer, scales, marks, compiler, anim |
+| `@vitecharts/react`   | React `<Chart />` component                     |
+| `@vitecharts/vue`     | Vue 3 `<ViteChart :options>` component          |
+| `@vitecharts/wc`      | `<vitecharts-chart>` web component              |
 | `@vitecharts/sandbox` | Dev harness (private)                           |
 
-More packages (charts, themes, export, adapters) land per the roadmap.
+Svelte / Angular / Solid adapters land next per the roadmap.
 
 ## Development
 

@@ -7,7 +7,7 @@ function escape(value: unknown): string {
   );
 }
 
-function defaultRenderer(theme: ResolvedTheme): TooltipRenderer {
+function defaultRenderer(): TooltipRenderer {
   return (group: XGroup) => {
     const rows = group.points
       .map(
@@ -37,7 +37,7 @@ export class Tooltip {
   private readonly render: TooltipRenderer;
 
   constructor(container: HTMLElement, theme: ResolvedTheme, custom?: TooltipRenderer) {
-    this.render = custom ?? defaultRenderer(theme);
+    this.render = custom ?? defaultRenderer();
     this.el = document.createElement('div');
     this.el.className = 'vitecharts-tooltip';
     this.el.setAttribute('style', STYLE);

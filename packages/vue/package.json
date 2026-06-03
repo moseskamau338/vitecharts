@@ -1,0 +1,36 @@
+{
+  "name": "@vitecharts/vue",
+  "version": "0.0.0",
+  "description": "Vue 3 bindings for ViteCharts.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@vitecharts/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": ">=3.3"
+  },
+  "devDependencies": {
+    "vue": "^3.5.13"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

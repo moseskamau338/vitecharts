@@ -1,0 +1,32 @@
+{
+  "name": "@vitecharts/wc",
+  "version": "0.0.0",
+  "description": "ViteCharts Web Component — <vitecharts-chart> for any framework or none.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": [
+    "./dist/index.js"
+  ],
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@vitecharts/core": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

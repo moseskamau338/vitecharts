@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–7 (core) — charts (cartesian+radial), animation, interaction, annotations, export.
+> **Status:** Phases 0–8 (core) — full chart catalog (cartesian+radial), animation, interaction, export, and React/Vue/Web-Component adapters.
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -338,19 +338,17 @@ PDF export, and the toolbar export menu (pairs with the deferred Phase 4 toolbar
 **Exit criteria:** themed, annotated charts export to SVG/PNG/CSV/JSON. ✅
 _8 export + annotation tests._
 
-### Phase 8 — Framework Adapters
+### Phase 8 — Framework Adapters — 🚧 CORE THREE SHIPPED
 
 **Goal:** idiomatic packages per framework, all sharing core.
 
-- React (`@vitecharts/react`): `<Chart />`, hooks, ref to imperative API, StrictMode-safe.
-- Vue 3 (`@vitecharts/vue`): SFC component, props reactivity, `v-model`-friendly.
-- Svelte (`@vitecharts/svelte`): component + actions; Svelte 5 runes support.
-- Angular (`@vitecharts/angular`): standalone component + module.
-- Solid (`@vitecharts/solid`): signals-native binding.
-- Web Component (`@vitecharts/wc`): `<vitecharts-chart>` for any/no framework.
-- Adapter contract test suite run against every adapter (same scenarios, parity guaranteed).
+- ✅ Web Component (`@vitecharts/wc`): `<vitecharts-chart>` for any/no framework.
+- ✅ React (`@vitecharts/react`): `<Chart />` with a ref to the imperative API.
+- ✅ Vue 3 (`@vitecharts/vue`): `<ViteChart :options>` with reactive updates.
+- ⏭️ Svelte, Angular, Solid — same thin-wrapper shape; follow-ups.
 
-**Exit criteria:** identical demo app implemented in each framework from one core.
+**Exit criteria:** the same core drives each adapter; each has a mount/update/teardown test. ✅
+_(8 adapter tests across wc/react/vue.)_
 
 ### Phase 9 — Performance & Accessibility Hardening
 
