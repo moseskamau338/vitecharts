@@ -1,0 +1,168 @@
+/* ViteCharts docs — brand + design character */
+
+:root {
+  --vp-c-brand-1: #6366f1;
+  --vp-c-brand-2: #5457e6;
+  --vp-c-brand-3: #4f46e5;
+  --vp-c-brand-soft: rgba(99, 102, 241, 0.14);
+  --vp-c-brand-softer: rgba(99, 102, 241, 0.08);
+
+  /* Hero gradient text + glow */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #6366f1 10%, #06b6d4 70%);
+  --vp-home-hero-image-background-image: linear-gradient(135deg, #6366f155, #06b6d455);
+  --vp-home-hero-image-filter: blur(56px);
+}
+
+.dark {
+  --vp-c-brand-1: #818cf8;
+  --vp-c-brand-2: #6366f1;
+  --vp-c-brand-3: #4f46e5;
+  --vp-c-brand-soft: rgba(129, 140, 248, 0.16);
+}
+
+/* Refined demo cards — subtle gradient frame + soft shadow */
+.vc-demo {
+  position: relative;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  margin: 22px 0;
+  background:
+    radial-gradient(120% 120% at 0% 0%, var(--vp-c-brand-softer), transparent 55%),
+    var(--vp-c-bg-soft);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px -16px rgba(15, 23, 42, 0.25);
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+.vc-demo:hover {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 16px 40px -20px rgba(99, 102, 241, 0.35);
+}
+
+/* "Live" badge in the corner of a demo */
+.vc-demo::after {
+  content: 'live';
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+  padding: 2px 7px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.vc-demo-title {
+  font-weight: 650;
+  font-size: 14px;
+  margin: 0 0 2px;
+}
+.vc-demo-caption {
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+  margin: 0 0 10px;
+}
+
+.vc-demo-canvas {
+  width: 100%;
+}
+
+/* Demo control buttons */
+.vc-btn {
+  margin-top: 12px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 550;
+  transition: all 0.15s ease;
+}
+.vc-btn:hover {
+  background: var(--vp-c-brand-1);
+  color: #fff;
+}
+
+/* Gallery — a full-width showcase page (layout: page) */
+.vc-gallery-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 56px 28px 80px;
+}
+.vc-gallery-page .vc-gallery-head {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 8px;
+}
+.vc-gallery-page h1 {
+  font-size: 40px;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  background: linear-gradient(120deg, var(--vp-c-brand-1), #06b6d4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0 0 10px;
+}
+.vc-gallery-page .vc-gallery-sub {
+  color: var(--vp-c-text-2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.vc-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 18px;
+  margin: 30px 0 0;
+}
+.vc-card {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 14px;
+  padding: 16px 16px 12px;
+  background: var(--vp-c-bg-soft);
+  box-shadow: 0 8px 24px -18px rgba(15, 23, 42, 0.3);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+.vc-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 22px 48px -24px rgba(99, 102, 241, 0.45);
+}
+.vc-card h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+  border: none;
+  padding: 0;
+  letter-spacing: -0.01em;
+}
+.vc-card p {
+  margin: 2px 0 10px;
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+  line-height: 1.45;
+}
+
+/* Make the home hero feel a touch more premium */
+.VPHero .name {
+  letter-spacing: -0.03em;
+}
+
+/* Smooth tooltip already animates; give it a crisper shadow in dark mode */
+.dark .vitecharts-tooltip {
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
+}

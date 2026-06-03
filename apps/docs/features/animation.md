@@ -34,6 +34,10 @@ new Chart('#el', {
 | `stagger`  | 120     | Per-series delay (ms)                     |
 | `dynamic`  | true    | Animate updates, not just the first mount |
 
+Every field is fully customizable. Try it live — adjust the timing and replay:
+
+<AnimationPlayground />
+
 ## Reduced motion
 
 When the user's OS requests reduced motion (`prefers-reduced-motion: reduce`), animations

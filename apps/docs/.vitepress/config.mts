@@ -10,6 +10,7 @@ export default defineConfig({
   lastUpdated: true,
   themeConfig: {
     nav: [
+      { text: 'Gallery', link: '/gallery' },
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Charts', link: '/charts/line' },
       { text: 'Features', link: '/features/animation' },
