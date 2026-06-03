@@ -70,13 +70,17 @@ describe('update-morph (FLIP)', () => {
 });
 
 describe('hover emphasis', () => {
-  it('draws emphasis rings on hover and clears them on leave', () => {
+  it('shows emphasis rings on hover and hides them on leave', () => {
     const el = mount();
     new Chart(el, { ...opts, animate: false });
     const svg = el.querySelector('svg') as SVGSVGElement;
     svg.dispatchEvent(new MouseEvent('mousemove', { clientX: 200, clientY: 100, bubbles: true }));
-    expect(el.querySelectorAll('.vitecharts-emphasis').length).toBeGreaterThan(0);
+    const visible = () =>
+      [...el.querySelectorAll<SVGElement>('.vitecharts-emphasis')].filter(
+        (r) => r.style.opacity === '1',
+      ).length;
+    expect(visible()).toBeGreaterThan(0);
     svg.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
-    expect(el.querySelectorAll('.vitecharts-emphasis').length).toBe(0);
+    expect(visible()).toBe(0);
   });
 });

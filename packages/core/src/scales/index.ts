@@ -49,6 +49,14 @@ export function buildScale(
   const type = opts.type ?? inferType(values);
   const [r0] = range;
 
+  // Subsample a categorical domain to ~count labels so they don't overlap.
+  const subsample = (domain: string[], count?: number): string[] => {
+    const n = count ?? 8;
+    if (domain.length <= n) return domain;
+    const step = Math.ceil(domain.length / n);
+    return domain.filter((_, i) => i % step === 0);
+  };
+
   if (type === 'band') {
     const domain = [...new Set(values.map((v) => String(v)))];
     const scale = scaleBand<string>()
@@ -58,7 +66,7 @@ export function buildScale(
     return {
       type,
       map: (v) => scale(String(v)) ?? r0,
-      ticks: () => domain,
+      ticks: (count) => subsample(domain, count),
       bandwidth: scale.bandwidth(),
       format: (v) => String(v),
     };
@@ -73,7 +81,7 @@ export function buildScale(
     return {
       type,
       map: (v) => scale(String(v)) ?? r0,
-      ticks: () => domain,
+      ticks: (count) => subsample(domain, count),
       bandwidth: 0,
       format: (v) => String(v),
     };

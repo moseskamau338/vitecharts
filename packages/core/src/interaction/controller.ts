@@ -5,6 +5,12 @@ import type { ChartEventMap, InteractionModel, XGroup } from './types.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+// Cursor (crosshair + emphasis) glide timing — a gentle ease-out so the line
+// and rings follow the pointer with momentum rather than snapping.
+const CURSOR_MS = 140;
+const CURSOR_BEZIER = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const CURSOR_EASE = `transform ${CURSOR_MS}ms ${CURSOR_BEZIER}`;
+
 export interface ControllerOptions {
   crosshair: boolean;
   theme: ResolvedTheme;
@@ -34,8 +40,9 @@ export class InteractionController {
 
   setModel(model: InteractionModel): void {
     this.model = model;
-    this.removeCrosshair();
-    this.clearEmphasis();
+    // The previous overlay nodes were detached by the renderer's clear().
+    this.crosshairEl = null;
+    this.emphasisEls = [];
   }
 
   /** Find a group by its raw x value (for synced charts). */
@@ -58,27 +65,40 @@ export class InteractionController {
     this.tooltip?.hide();
   }
 
-  /** Highlight the hovered points with a ring (cleared on the next move/leave). */
+  /**
+   * Highlight the hovered points with a ring. Rings are pooled and moved via a
+   * CSS `transform` transition so they glide between points rather than snap.
+   */
   private emphasize(group: XGroup): void {
-    this.clearEmphasis();
-    for (const p of group.points) {
+    const n = group.points.length;
+    while (this.emphasisEls.length < n) {
       const ring = document.createElementNS(SVG_NS, 'circle');
       ring.setAttribute('class', 'vitecharts-emphasis');
-      ring.setAttribute('cx', String(p.cx));
-      ring.setAttribute('cy', String(p.cy));
-      ring.setAttribute('r', '5');
+      ring.setAttribute('r', '4.5');
       ring.setAttribute('fill', '#ffffff');
-      ring.setAttribute('stroke', p.color);
       ring.setAttribute('stroke-width', '2.5');
       ring.setAttribute('pointer-events', 'none');
+      ring.style.opacity = '0';
       this.svg.appendChild(ring);
       this.emphasisEls.push(ring);
     }
+    group.points.forEach((p, i) => {
+      const ring = this.emphasisEls[i]!;
+      const firstShow = ring.style.opacity !== '1';
+      ring.setAttribute('stroke', p.color);
+      ring.style.transform = `translate(${p.cx}px, ${p.cy}px)`;
+      // Enable the transition only after the initial placement so a freshly
+      // shown ring fades in (opacity) without sliding from the origin.
+      if (firstShow) {
+        ring.style.transition = `${CURSOR_EASE}, opacity 120ms ease`;
+      }
+      ring.style.opacity = '1';
+    });
+    for (let i = n; i < this.emphasisEls.length; i++) this.emphasisEls[i]!.style.opacity = '0';
   }
 
   private clearEmphasis(): void {
-    for (const el of this.emphasisEls) el.remove();
-    this.emphasisEls = [];
+    for (const el of this.emphasisEls) el.style.opacity = '0';
   }
 
   private localPos(e: MouseEvent): { x: number; y: number } {
@@ -134,18 +154,26 @@ export class InteractionController {
     if (!this.model) return;
     const { top, bottom } = this.model.bounds;
     if (!this.crosshairEl) {
-      this.crosshairEl = document.createElementNS(SVG_NS, 'line');
-      this.crosshairEl.setAttribute('class', 'vitecharts-crosshair');
-      this.crosshairEl.setAttribute('stroke', this.opts.theme.labelColor);
-      this.crosshairEl.setAttribute('stroke-dasharray', '3 3');
-      this.crosshairEl.setAttribute('stroke-opacity', '0.5');
-      this.crosshairEl.setAttribute('pointer-events', 'none');
-      this.svg.appendChild(this.crosshairEl);
+      const line = document.createElementNS(SVG_NS, 'line');
+      line.setAttribute('class', 'vitecharts-crosshair');
+      line.setAttribute('x1', '0');
+      line.setAttribute('x2', '0');
+      line.setAttribute('y1', String(top));
+      line.setAttribute('y2', String(bottom));
+      line.setAttribute('stroke', this.opts.theme.labelColor);
+      line.setAttribute('stroke-dasharray', '3 4');
+      line.setAttribute('stroke-opacity', '0.45');
+      line.setAttribute('pointer-events', 'none');
+      line.style.transform = `translateX(${x}px)`;
+      this.svg.appendChild(line);
+      // Enable the slide transition after the first placement (no slide-in).
+      line.style.transition = `transform ${CURSOR_MS}ms ${CURSOR_BEZIER}`;
+      this.crosshairEl = line;
+    } else {
+      this.crosshairEl.setAttribute('y1', String(top));
+      this.crosshairEl.setAttribute('y2', String(bottom));
+      this.crosshairEl.style.transform = `translateX(${x}px)`;
     }
-    this.crosshairEl.setAttribute('x1', String(x));
-    this.crosshairEl.setAttribute('x2', String(x));
-    this.crosshairEl.setAttribute('y1', String(top));
-    this.crosshairEl.setAttribute('y2', String(bottom));
   }
 
   private removeCrosshair(): void {

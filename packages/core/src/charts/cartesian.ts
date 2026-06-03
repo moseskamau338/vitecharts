@@ -113,9 +113,13 @@ function drawFrame(ctx: ChartContext, bandX: boolean, stacked: boolean): Frame {
     min: spec.xAxis.min,
     max: spec.xAxis.max,
   });
+  // Force a zero baseline only when bars/areas grow from it; line, scatter,
+  // candlestick, boxplot, and range types fit tightly to the data instead.
+  const ZERO_TYPES = new Set(['bar', 'area', 'rangeBar']);
+  const zero = spec.series.some((s) => ZERO_TYPES.has(s.type) && !s.hidden);
   const y = buildScale(valueDomain(ctx, stacked), [bottom, top], {
     type: spec.yAxis.type ?? 'linear',
-    zero: true,
+    zero,
     min: spec.yAxis.min,
     max: spec.yAxis.max,
   });

@@ -50,7 +50,7 @@ class AnimationRunner {
 export class Chart {
   private readonly renderer: SvgRenderer;
   private readonly options: Signal<ChartOptions>;
-  private readonly containerWidth: Signal<number>;
+  private readonly containerSize: Signal<{ w: number; h: number }>;
   private readonly dispose: () => void;
   private readonly runner = new AnimationRunner();
   private readonly emitter = new Emitter<ChartEventMap>();
@@ -77,20 +77,24 @@ export class Chart {
 
     this.renderer = new SvgRenderer(el);
     this.options = signal(options);
-    this.containerWidth = signal(el.clientWidth);
+    this.containerSize = signal({ w: el.clientWidth, h: el.clientHeight });
 
     // Reactive render loop: reads both signals, so updates and resizes redraw.
     this.dispose = effect(() => {
       const opts = this.options.value;
-      const measured = this.containerWidth.value;
-      const width = opts.width ?? (measured || FALLBACK_WIDTH);
-      const height = opts.height ?? DEFAULT_HEIGHT;
+      const { w, h } = this.containerSize.value;
+      const width = opts.width ?? (w || FALLBACK_WIDTH);
+      const height = opts.height ?? (h || DEFAULT_HEIGHT);
       this.draw(el, opts, width, height);
     });
 
-    if (options.width == null && typeof ResizeObserver !== 'undefined') {
+    // Size from the container unless both dimensions are fixed.
+    if (
+      (options.width == null || options.height == null) &&
+      typeof ResizeObserver !== 'undefined'
+    ) {
       this.observer = new ResizeObserver(() => {
-        this.containerWidth.value = el.clientWidth;
+        this.containerSize.value = { w: el.clientWidth, h: el.clientHeight };
       });
       this.observer.observe(el);
     }
