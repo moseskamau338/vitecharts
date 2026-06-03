@@ -1,5 +1,7 @@
 import type { ChartType } from '../types.js';
 import { cartesianChart } from './cartesian.js';
+import { funnelChart } from './funnel.js';
+import { heatmapChart } from './heatmap.js';
 import { pieChart, polarAreaChart, radarChart, radialBarChart } from './radial.js';
 
 /**
@@ -13,9 +15,15 @@ export const registry: Record<string, ChartType> = {
   area: cartesianChart,
   bar: cartesianChart,
   scatter: cartesianChart,
+  candlestick: cartesianChart,
+  boxplot: cartesianChart,
+  rangeBar: cartesianChart,
+  rangeArea: cartesianChart,
   pie: pieChart,
   donut: pieChart, // innerRadius (default 0.6) drives the hole
   polarArea: polarAreaChart,
   radialBar: radialBarChart,
   radar: radarChart,
+  funnel: funnelChart,
+  heatmap: heatmapChart,
 };

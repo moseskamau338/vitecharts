@@ -52,6 +52,13 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
       size: s.size,
       gradient: s.gradient ?? false,
       dash: s.dash,
+      open: s.open,
+      high: s.high,
+      low: s.low,
+      close: s.close,
+      q1: s.q1,
+      median: s.median,
+      q3: s.q3,
       hidden: false,
     };
   });

@@ -21,7 +21,13 @@ export type ChartTypeName =
   | 'donut'
   | 'polarArea'
   | 'radialBar'
-  | 'radar';
+  | 'radar'
+  | 'candlestick'
+  | 'boxplot'
+  | 'rangeBar'
+  | 'rangeArea'
+  | 'funnel'
+  | 'heatmap';
 
 /** Line interpolation. */
 export type CurveType = 'linear' | 'smooth' | 'step' | 'basis';
@@ -49,6 +55,21 @@ export interface SeriesOption {
   gradient?: boolean;
   /** SVG `stroke-dasharray` for a dashed line, e.g. `"6 4"`. */
   dash?: string;
+  // Multi-value keys for financial/statistical/range types:
+  /** Candlestick open key. */
+  open?: string;
+  /** Candlestick/boxplot high (max) key. */
+  high?: string;
+  /** Candlestick/boxplot low (min) key. */
+  low?: string;
+  /** Candlestick close key. */
+  close?: string;
+  /** Boxplot lower-quartile key. */
+  q1?: string;
+  /** Boxplot median key. */
+  median?: string;
+  /** Boxplot upper-quartile key. */
+  q3?: string;
 }
 
 export interface AxisOption {
@@ -144,6 +165,13 @@ export interface ResolvedSeries {
   size?: string;
   gradient: boolean;
   dash?: string;
+  open?: string;
+  high?: string;
+  low?: string;
+  close?: string;
+  q1?: string;
+  median?: string;
+  q3?: string;
   hidden: boolean;
 }
 

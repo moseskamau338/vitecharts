@@ -12,7 +12,7 @@ import type { PixelPoint } from '../marks/types.js';
 import { buildScale, type PositionScale } from '../scales/index.js';
 import { isNumber } from '../util/guards.js';
 import { lttb } from '../util/downsample.js';
-import type { ChartContext, ChartType, ResolvedSeries } from '../types.js';
+import type { ChartContext, ChartType, ResolvedSeries, Row } from '../types.js';
 import type { NodeHandle, Renderer } from '../renderer/types.js';
 import type { InteractionModel, PlotPoint, XGroup } from '../interaction/types.js';
 
@@ -35,11 +35,32 @@ interface StackPoint {
   y1: number;
 }
 
+const BAND_TYPES = new Set(['bar', 'candlestick', 'boxplot', 'rangeBar']);
+const UP_COLOR = '#26a69a';
+const DOWN_COLOR = '#ef5350';
+
+/** Keys of a series that contribute to the value-axis domain. */
+function domainKeys(s: ResolvedSeries): string[] {
+  switch (s.type) {
+    case 'candlestick':
+      return [s.high, s.low, s.open, s.close].filter((k): k is string => !!k);
+    case 'boxplot':
+      return [s.high, s.low].filter((k): k is string => !!k);
+    case 'rangeBar':
+    case 'rangeArea':
+      return [s.low, s.high].filter((k): k is string => !!k);
+    default:
+      return [s.y];
+  }
+}
+
 /** Per-row y values used to size the value axis (flat, or stacked totals). */
 function valueDomain(ctx: ChartContext, stacked: boolean): number[] {
   const { spec } = ctx;
   if (!stacked) {
-    return spec.series.flatMap((s) => spec.data.map((r) => r[s.y]).filter(isNumber));
+    return spec.series.flatMap((s) =>
+      domainKeys(s).flatMap((k) => spec.data.map((r) => r[k]).filter(isNumber)),
+    );
   }
   const pos = spec.data.map((row) =>
     spec.series.reduce((acc, s) => {
@@ -387,6 +408,140 @@ function drawScatterSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle)
   });
 }
 
+function num(row: Row, key: string | undefined): number | null {
+  if (!key) return null;
+  const v = row[key];
+  return isNumber(v) ? v : null;
+}
+
+function drawCandlestickSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle): void {
+  const { frame } = sc;
+  const band = frame.x.bandwidth || 24;
+  const bodyW = band * 0.6;
+  for (const row of sc.spec.data) {
+    const o = num(row, s.open);
+    const h = num(row, s.high);
+    const l = num(row, s.low);
+    const c = num(row, s.close);
+    if (o == null || h == null || l == null || c == null) continue;
+    const cx = frame.x.map(row[sc.spec.x]) + band / 2;
+    const up = c >= o;
+    const color = up ? UP_COLOR : DOWN_COLOR;
+    // wick (high–low)
+    strokeLine(sc, cx, frame.y.map(h), cx, frame.y.map(l), color, parent);
+    // body (open–close)
+    const top = frame.y.map(Math.max(o, c));
+    const h2 = Math.abs(frame.y.map(o) - frame.y.map(c)) || 1;
+    drawBar(
+      sc.renderer,
+      { x: cx - bodyW / 2, y: top, width: bodyW, height: h2 },
+      { fill: color },
+      parent,
+    );
+    record(sc, s, row[sc.spec.x], c, cx, top);
+  }
+}
+
+function strokeLine(
+  sc: SeriesCtx,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  stroke: string,
+  parent: NodeHandle,
+): void {
+  sc.renderer.line({ x1, y1, x2, y2, stroke, 'stroke-width': 1.5 }, parent);
+}
+
+function drawBoxplotSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle): void {
+  const { frame } = sc;
+  const band = frame.x.bandwidth || 32;
+  const boxW = band * 0.5;
+  for (const row of sc.spec.data) {
+    const lo = num(row, s.low);
+    const q1 = num(row, s.q1);
+    const med = num(row, s.median);
+    const q3 = num(row, s.q3);
+    const hi = num(row, s.high);
+    if (lo == null || q1 == null || med == null || q3 == null || hi == null) continue;
+    const cx = frame.x.map(row[sc.spec.x]) + band / 2;
+    const yLo = frame.y.map(lo);
+    const yHi = frame.y.map(hi);
+    // whiskers + caps
+    strokeLine(sc, cx, yHi, cx, frame.y.map(q3), s.color, parent);
+    strokeLine(sc, cx, frame.y.map(q1), cx, yLo, s.color, parent);
+    strokeLine(sc, cx - boxW / 4, yHi, cx + boxW / 4, yHi, s.color, parent);
+    strokeLine(sc, cx - boxW / 4, yLo, cx + boxW / 4, yLo, s.color, parent);
+    // box (q1–q3) + median line
+    const top = frame.y.map(q3);
+    drawBar(
+      sc.renderer,
+      { x: cx - boxW / 2, y: top, width: boxW, height: Math.abs(frame.y.map(q1) - top) || 1 },
+      { fill: s.color, opacity: 0.25, radius: 1 },
+      parent,
+    );
+    strokeLine(
+      sc,
+      cx - boxW / 2,
+      frame.y.map(med),
+      cx + boxW / 2,
+      frame.y.map(med),
+      s.color,
+      parent,
+    );
+    record(sc, s, row[sc.spec.x], med, cx, top);
+  }
+}
+
+function drawRangeBarSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle): void {
+  const { frame } = sc;
+  const band = frame.x.bandwidth || 32;
+  const barW = band * BAR_GAP;
+  for (const row of sc.spec.data) {
+    const lo = num(row, s.low);
+    const hi = num(row, s.high);
+    if (lo == null || hi == null) continue;
+    const cx = frame.x.map(row[sc.spec.x]) + band / 2;
+    const yTop = frame.y.map(Math.max(lo, hi));
+    const h = Math.abs(frame.y.map(hi) - frame.y.map(lo)) || 1;
+    drawBar(
+      sc.renderer,
+      { x: cx - barW / 2, y: yTop, width: barW, height: h },
+      { fill: seriesFill(sc, s, 0.55), opacity: s.gradient ? 1 : s.fillOpacity, radius: 3 },
+      parent,
+    );
+    record(sc, s, row[sc.spec.x], hi, cx, yTop);
+  }
+}
+
+function drawRangeAreaSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle): void {
+  const { frame } = sc;
+  const areaPts: AreaPoint[] = [];
+  const hiPts: PixelPoint[] = [];
+  const loPts: PixelPoint[] = [];
+  for (const row of sc.spec.data) {
+    const lo = num(row, s.low);
+    const hi = num(row, s.high);
+    if (lo == null || hi == null) continue;
+    const cx = centerX(frame, row[sc.spec.x]);
+    areaPts.push({ x: cx, y: frame.y.map(hi), y0: frame.y.map(lo) });
+    hiPts.push({ x: cx, y: frame.y.map(hi) });
+    loPts.push({ x: cx, y: frame.y.map(lo) });
+    record(sc, s, row[sc.spec.x], hi, cx, frame.y.map(hi));
+  }
+  const fill = drawArea(
+    sc.renderer,
+    areaPts,
+    { fill: s.color, opacity: s.fillOpacity, curve: s.curve },
+    parent,
+  );
+  drawLine(sc.renderer, hiPts, { stroke: s.color, width: 2, curve: s.curve }, parent);
+  drawLine(sc.renderer, loPts, { stroke: s.color, width: 2, curve: s.curve }, parent);
+  if (sc.animation.enter)
+    sc.animation.track(animateFadeIn(fill, sc.animation.config, { delay: sc.delay }));
+}
+
 /** Bucket collected points by x position into sorted groups for hit-testing. */
 function buildGroups(points: PlotPoint[]): XGroup[] {
   const byX = new Map<number, XGroup>();
@@ -475,8 +630,8 @@ function drawAnnotations(ctx: ChartContext, frame: Frame): void {
 
 function render(ctx: ChartContext): void {
   const { renderer, spec, animation } = ctx;
-  const hasBar = spec.series.some((s) => s.type === 'bar' && !s.hidden);
-  const frame = drawFrame(ctx, hasBar, spec.stacked);
+  const bandX = spec.series.some((s) => BAND_TYPES.has(s.type) && !s.hidden);
+  const frame = drawFrame(ctx, bandX, spec.stacked);
   const plot = renderer.group({ class: 'vitecharts-series' });
   const stacks = spec.stacked ? stackSeries(ctx) : null;
 
@@ -502,11 +657,23 @@ function render(ctx: ChartContext): void {
         drawBarSeries(sc, s, plot, { index: barIndex, count: barSeries.length }, stacks);
         barIndex++;
         break;
+      case 'rangeBar':
+        drawRangeBarSeries(sc, s, plot);
+        break;
       case 'area':
         drawAreaSeries(sc, s, plot, stacks);
         break;
+      case 'rangeArea':
+        drawRangeAreaSeries(sc, s, plot);
+        break;
       case 'scatter':
         drawScatterSeries(sc, s, plot);
+        break;
+      case 'candlestick':
+        drawCandlestickSeries(sc, s, plot);
+        break;
+      case 'boxplot':
+        drawBoxplotSeries(sc, s, plot);
         break;
       default:
         drawLineSeries(sc, s, plot);
