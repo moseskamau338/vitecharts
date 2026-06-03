@@ -3,6 +3,8 @@ import {
   animateBarGrow,
   animateDrawOn,
   animateFadeIn,
+  animateNumber,
+  animateRectMorph,
   polylineLength,
 } from '../anim/choreography.js';
 import { drawArea, type AreaPoint } from '../marks/area.js';
@@ -192,10 +194,16 @@ function seriesFill(sc: SeriesCtx, s: ResolvedSeries, bottomOpacity = 0): string
   return s.color;
 }
 
-/** Draw a value label above a datum when `dataLabels` is on. */
-function drawLabel(sc: SeriesCtx, value: number, cx: number, cy: number, parent: NodeHandle): void {
-  if (!sc.spec.dataLabels || !Number.isFinite(value)) return;
-  sc.renderer.text(
+/** Draw a value label above a datum when `dataLabels` is on; returns the node. */
+function drawLabel(
+  sc: SeriesCtx,
+  value: number,
+  cx: number,
+  cy: number,
+  parent: NodeHandle,
+): NodeHandle | null {
+  if (!sc.spec.dataLabels || !Number.isFinite(value)) return null;
+  return sc.renderer.text(
     String(value),
     {
       x: cx,
@@ -349,6 +357,9 @@ function drawBarSeries(
   const stack = stacks?.get(s.y);
   const slot = stack ? band : band / layout.count;
   const barWidth = slot * BAR_GAP;
+  const labelGroup = sc.spec.dataLabels
+    ? sc.renderer.group({ class: 'vitecharts-labels' }, parent)
+    : null;
 
   sc.spec.data.forEach((row, i) => {
     const v = row[s.y];
@@ -368,13 +379,29 @@ function drawBarSeries(
       { fill: seriesFill(sc, s, 0.55), opacity: s.gradient ? 1 : s.fillOpacity, radius: 2 },
       parent,
     );
+
+    const key = `bar:${sc.seriesIndex}:${String(row[sc.spec.x])}`;
+    const prev = animation.prev?.get(key);
+    animation.snapshot.set(key, [x, y, barWidth, h, v]);
+
     if (animation.enter) {
-      const grow = animateBarGrow(rect, y, h, baseline, animation.config, {
-        delay: sc.delay + (i / Math.max(1, sc.spec.data.length)) * animation.config.duration * 0.5,
-      });
-      animation.track(grow);
+      animation.track(
+        animateBarGrow(rect, y, h, baseline, animation.config, {
+          delay:
+            sc.delay + (i / Math.max(1, sc.spec.data.length)) * animation.config.duration * 0.5,
+        }),
+      );
+    } else if (animation.dynamic && prev) {
+      // FLIP: slide + resize from the previous bar geometry (bar-race).
+      animation.track(animateRectMorph(rect, prev, [x, y, barWidth, h], animation.config));
     }
-    if (sc.spec.dataLabels) drawLabel(sc, v, x + barWidth / 2, y, parent);
+
+    if (labelGroup) {
+      const node = drawLabel(sc, v, x + barWidth / 2, y, labelGroup);
+      if (node && animation.dynamic && prev) {
+        animation.track(animateNumber(node, prev[4] ?? v, v, animation.config));
+      }
+    }
   });
 }
 

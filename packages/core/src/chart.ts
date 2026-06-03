@@ -66,6 +66,7 @@ export class Chart {
   private leaveSyncGroup: (() => void) | null = null;
   private zoomWindow: Range | null = null;
   private bounds: PlotBounds | null = null;
+  private prevGeom: Map<string, number[]> | null = null;
 
   constructor(target: string | HTMLElement, options: ChartOptions) {
     const el =
@@ -111,6 +112,7 @@ export class Chart {
     this.runner.cancelAll();
     const config = resolveAnimation(options.animate);
     const enter = this.firstRender;
+    const snapshot = new Map<string, number[]>();
 
     this.renderer.clear();
     this.renderer.resize(width, height);
@@ -119,7 +121,14 @@ export class Chart {
       width,
       height,
       spec,
-      animation: { config, enter, track: (h) => this.runner.track(h) },
+      animation: {
+        config,
+        enter,
+        dynamic: !enter && config.dynamic,
+        prev: this.prevGeom,
+        snapshot,
+        track: (h) => this.runner.track(h),
+      },
       scene: {
         setModel: (m) => {
           this.bounds = m.bounds;
@@ -129,6 +138,7 @@ export class Chart {
       },
     });
 
+    this.prevGeom = snapshot;
     this.applyA11y(options, spec.type, spec.series.length);
 
     this.legend?.setItems(

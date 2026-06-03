@@ -214,6 +214,12 @@ export interface CompiledSpec {
 export interface ChartAnimation {
   config: AnimationConfig;
   enter: boolean;
+  /** True on data updates when update-morph should play (not first render). */
+  dynamic: boolean;
+  /** Geometry from the previous frame, keyed per mark (FLIP morph source). */
+  prev: Map<string, number[]> | null;
+  /** Sink for this frame's geometry, to morph from next time. */
+  snapshot: Map<string, number[]>;
   track(handle: TweenHandle | null): void;
 }
 

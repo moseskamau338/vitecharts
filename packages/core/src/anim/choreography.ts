@@ -105,6 +105,52 @@ export function animateBarGrow(
   });
 }
 
+/** Morph a rect between two `[x, y, width, height]` geometries (bar-race). */
+export function animateRectMorph(
+  node: NodeHandle,
+  from: number[],
+  to: number[],
+  config: AnimationConfig,
+): TweenHandle | null {
+  if (!config.enabled || from.length < 4) return null;
+  const [fx, fy, fw, fh] = from as [number, number, number, number];
+  const [tx, ty, tw, th] = to as [number, number, number, number];
+  node.set({ x: fx, y: fy, width: fw, height: fh });
+  return tween({
+    duration: config.dynamicDuration || config.duration,
+    easing: config.easing,
+    onUpdate: (e) =>
+      node.set({
+        x: fx + (tx - fx) * e,
+        y: fy + (ty - fy) * e,
+        width: fw + (tw - fw) * e,
+        height: fh + (th - fh) * e,
+      }),
+    onComplete: () => node.set({ x: tx, y: ty, width: tw, height: th }),
+  });
+}
+
+/** Count a text node's number up/down between two values (value count-up). */
+export function animateNumber(
+  node: NodeHandle,
+  from: number,
+  to: number,
+  config: AnimationConfig,
+  format: (v: number) => string = (v) => String(Math.round(v)),
+): TweenHandle | null {
+  if (!config.enabled) {
+    node.text(format(to));
+    return null;
+  }
+  node.text(format(from)); // start from the old value
+  return tween({
+    duration: config.dynamicDuration || config.duration,
+    easing: config.easing,
+    onUpdate: (e) => node.text(format(from + (to - from) * e)),
+    onComplete: () => node.text(format(to)),
+  });
+}
+
 /** Arc/pie "sweep" by growing the end angle. */
 export function animateArcSweep(
   node: NodeHandle,

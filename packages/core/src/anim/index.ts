@@ -16,6 +16,8 @@ export {
   animateFadeIn,
   animateBarGrow,
   animateArcSweep,
+  animateRectMorph,
+  animateNumber,
 } from './choreography.js';
 export {
   EASINGS,

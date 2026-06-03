@@ -19,6 +19,7 @@ export interface ControllerOptions {
 export class InteractionController {
   private model: InteractionModel | null = null;
   private crosshairEl: SVGLineElement | null = null;
+  private emphasisEls: SVGCircleElement[] = [];
 
   constructor(
     private readonly svg: SVGSVGElement,
@@ -34,6 +35,7 @@ export class InteractionController {
   setModel(model: InteractionModel): void {
     this.model = model;
     this.removeCrosshair();
+    this.clearEmphasis();
   }
 
   /** Find a group by its raw x value (for synced charts). */
@@ -44,6 +46,7 @@ export class InteractionController {
   /** Programmatically show the crosshair + tooltip for a group (sync peers). */
   showGroup(group: XGroup): void {
     if (this.opts.crosshair) this.drawCrosshair(group.x);
+    this.emphasize(group);
     const topY = Math.min(...group.points.map((p) => p.cy));
     this.tooltip?.show(group, group.x, topY);
   }
@@ -51,7 +54,31 @@ export class InteractionController {
   /** Hide crosshair + tooltip without emitting events (sync peers). */
   hide(): void {
     this.removeCrosshair();
+    this.clearEmphasis();
     this.tooltip?.hide();
+  }
+
+  /** Highlight the hovered points with a ring (cleared on the next move/leave). */
+  private emphasize(group: XGroup): void {
+    this.clearEmphasis();
+    for (const p of group.points) {
+      const ring = document.createElementNS(SVG_NS, 'circle');
+      ring.setAttribute('class', 'vitecharts-emphasis');
+      ring.setAttribute('cx', String(p.cx));
+      ring.setAttribute('cy', String(p.cy));
+      ring.setAttribute('r', '5');
+      ring.setAttribute('fill', '#ffffff');
+      ring.setAttribute('stroke', p.color);
+      ring.setAttribute('stroke-width', '2.5');
+      ring.setAttribute('pointer-events', 'none');
+      this.svg.appendChild(ring);
+      this.emphasisEls.push(ring);
+    }
+  }
+
+  private clearEmphasis(): void {
+    for (const el of this.emphasisEls) el.remove();
+    this.emphasisEls = [];
   }
 
   private localPos(e: MouseEvent): { x: number; y: number } {
@@ -83,6 +110,7 @@ export class InteractionController {
       return;
     }
     if (this.opts.crosshair) this.drawCrosshair(group.x);
+    this.emphasize(group);
     const topY = Math.min(...group.points.map((p) => p.cy));
     this.tooltip?.show(group, group.x, topY);
     this.emitter.emit('pointerMove', { group, x: group.x, y: topY });
@@ -91,6 +119,7 @@ export class InteractionController {
 
   private onLeave = (): void => {
     this.removeCrosshair();
+    this.clearEmphasis();
     this.tooltip?.hide();
     this.emitter.emit('pointerLeave', undefined);
   };
