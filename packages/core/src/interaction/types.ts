@@ -39,6 +39,8 @@ export interface ChartEventMap {
   pointerLeave: undefined;
   markerClick: { point: PlotPoint };
   legendClick: { seriesIndex: number; name: string; hidden: boolean };
+  /** Emitted when a brush selection finishes; x0/x1 are data values. */
+  brushSelection: { x0: unknown; x1: unknown; px0: number; px1: number };
 }
 
 export type TooltipRenderer = (group: XGroup) => string;

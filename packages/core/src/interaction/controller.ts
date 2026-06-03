@@ -36,6 +36,24 @@ export class InteractionController {
     this.removeCrosshair();
   }
 
+  /** Find a group by its raw x value (for synced charts). */
+  findByXRaw(xRaw: unknown): XGroup | null {
+    return this.model?.groups.find((g) => String(g.xRaw) === String(xRaw)) ?? null;
+  }
+
+  /** Programmatically show the crosshair + tooltip for a group (sync peers). */
+  showGroup(group: XGroup): void {
+    if (this.opts.crosshair) this.drawCrosshair(group.x);
+    const topY = Math.min(...group.points.map((p) => p.cy));
+    this.tooltip?.show(group, group.x, topY);
+  }
+
+  /** Hide crosshair + tooltip without emitting events (sync peers). */
+  hide(): void {
+    this.removeCrosshair();
+    this.tooltip?.hide();
+  }
+
   private localPos(e: MouseEvent): { x: number; y: number } {
     const rect = this.svg.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };

@@ -3,8 +3,10 @@ import type { TweenHandle } from './anim/tween.js';
 import { registry } from './charts/registry.js';
 import { downloadFile, serializeSvg, svgToPngDataUrl, toCSV, toJSON } from './export/index.js';
 import { Emitter } from './events.js';
+import { BrushController } from './interaction/brush.js';
 import { InteractionController } from './interaction/controller.js';
 import { Legend, type LegendPosition } from './interaction/legend.js';
+import { broadcastHide, broadcastShow, joinSyncGroup } from './interaction/sync.js';
 import { Tooltip } from './interaction/tooltip.js';
 import type { ChartEventMap } from './interaction/types.js';
 import { effect, signal, type Signal } from './reactive/signal.js';
@@ -49,6 +51,8 @@ export class Chart {
   private tooltip: Tooltip | null = null;
   private legend: Legend | null = null;
   private controller: InteractionController | null = null;
+  private brush: BrushController | null = null;
+  private leaveSyncGroup: (() => void) | null = null;
 
   constructor(target: string | HTMLElement, options: ChartOptions) {
     const el =
@@ -102,7 +106,12 @@ export class Chart {
       height,
       spec,
       animation: { config, enter, track: (h) => this.runner.track(h) },
-      scene: { setModel: (m) => this.controller?.setModel(m) },
+      scene: {
+        setModel: (m) => {
+          this.controller?.setModel(m);
+          this.brush?.setModel(m);
+        },
+      },
     });
 
     this.legend?.setItems(
@@ -135,6 +144,29 @@ export class Chart {
       const position: LegendPosition =
         typeof legendOpt === 'object' ? (legendOpt.position ?? 'bottom') : 'bottom';
       this.legend = new Legend(container, position, theme, (i) => this.toggleSeries(i));
+    }
+
+    if (options.brush) {
+      this.brush = new BrushController(
+        this.renderer.mount,
+        this.emitter,
+        theme.colors[0] ?? '#008FFB',
+      );
+    }
+
+    // Sync group: mirror hover to peers sharing the same group id.
+    const groupId = options.group;
+    if (groupId && this.controller) {
+      const peer = {
+        showAt: (xRaw: unknown) => {
+          const g = this.controller?.findByXRaw(xRaw);
+          if (g) this.controller?.showGroup(g);
+        },
+        hide: () => this.controller?.hide(),
+      };
+      this.leaveSyncGroup = joinSyncGroup(groupId, peer);
+      this.on('pointerMove', ({ group }) => broadcastShow(groupId, peer, group.xRaw));
+      this.on('pointerLeave', () => broadcastHide(groupId, peer));
     }
   }
 
@@ -226,6 +258,8 @@ export class Chart {
     this.observer?.disconnect();
     this.runner.cancelAll();
     this.controller?.destroy();
+    this.brush?.destroy();
+    this.leaveSyncGroup?.();
     this.tooltip?.destroy();
     this.legend?.destroy();
     this.emitter.clear();

@@ -81,6 +81,8 @@ export { Emitter } from './events.js';
 export { Tooltip } from './interaction/tooltip.js';
 export { Legend, type LegendPosition } from './interaction/legend.js';
 export { InteractionController } from './interaction/controller.js';
+export { BrushController } from './interaction/brush.js';
+export { joinSyncGroup, broadcastShow, broadcastHide, type SyncPeer } from './interaction/sync.js';
 export type {
   PlotPoint,
   XGroup,

@@ -114,6 +114,10 @@ export interface ChartOptions {
   innerRadius?: number;
   /** Annotations drawn over the plot (x/y lines, regions, points). */
   annotations?: Annotation[];
+  /** Enable drag-to-select brushing; emits `brushSelection` events. */
+  brush?: boolean;
+  /** Sync group id — charts sharing it mirror hover crosshair/tooltip. */
+  group?: string;
 }
 
 // --------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–8 (core) — full chart catalog (cartesian+radial), animation, interaction, export, and React/Vue/Web-Component adapters.
+> **Status:** Phases 0–8 + brushing/sync — chart catalog, animation, interaction, brush/scrub, export, adapters.
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -300,16 +300,18 @@ hover-highlight/dimming. These pair naturally with brushing (Phase 5) and export
 **Exit criteria:** interactive cartesian charts with tooltip + crosshair + legend + events. ✅
 _6 interaction tests (tooltip show/hide, crosshair, events, legend toggle, disable)._
 
-### Phase 5 — Brushing, Scrubbing & Sync
+### Phase 5 — Brushing, Scrubbing & Sync — ✅ CORE COMPLETE
 
 **Goal:** the brush/range-selector experience and synced charts.
 
-- Brush chart: a small overview chart controlling a detail chart's x-range.
-- Draggable/resizable selection window with momentum + snap.
-- Scrubbing playhead (time series): drag to inspect, optional playback animation.
-- Chart sync groups: shared crosshair + tooltip + zoom across multiple charts by `group` id.
+- ✅ Brush: drag-to-select over the plot, emits `brushSelection` (data x0/x1) — wire it
+  to a detail chart's `axes.x.min/max` for a brush→detail (scrubbing) view.
+- ✅ Chart sync groups: shared crosshair + tooltip across charts via a `group` id.
 
-**Exit criteria:** Apex-style brush+detail demo and a synced multi-chart dashboard.
+**Deferred:** a resizable/draggable selection window with momentum/snap, a dedicated
+playback playhead, and synced zoom (zoom itself is deferred from Phase 4).
+
+**Exit criteria:** brush emits a data range; synced charts mirror hover. ✅ _(3 brush/sync tests.)_
 
 ### Phase 6 — Radial, Hierarchical & Statistical Pack — 🚧 RADIAL DONE
 
