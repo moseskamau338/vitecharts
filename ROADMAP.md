@@ -373,8 +373,10 @@ _(8 adapter tests across wc/react/vue.)_
   cartesian + radial series, categories, `[x,y]`/`{x,y}` data, colors, dark theme, curve,
   title, legend). Documented in its source.
 - ✅ README quick-start, concepts, monorepo overview; `RELEASING.md`.
-- ⏭️ VitePress docs site + typedoc API reference, live playground, examples gallery,
-  API-stability/semver policy, the `v1.0.0` tag + publish.
+- ✅ VitePress docs site with live, interactive examples for every chart type + feature
+  (`apps/docs`, `pnpm docs:dev`).
+- ⏭️ typedoc-generated API reference, an in-page live editor/playground, API-stability/
+  semver policy, and the `v1.0.0` tag + publish.
 
 **Exit criteria:** 1.0 published; docs live; parity matrix green or consciously deferred.
 
