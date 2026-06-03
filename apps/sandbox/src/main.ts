@@ -10,14 +10,27 @@ const data = [
   { month: 'Jul', sales: 62, profit: 35 },
 ];
 
-new Chart('#chart', {
+const chart = new Chart('#chart', {
   type: 'line',
   data,
   x: 'month',
   series: [
-    { y: 'sales', name: 'Sales' },
-    { y: 'profit', name: 'Profit' },
+    { y: 'sales', name: 'Sales', curve: 'smooth' },
+    { y: 'profit', name: 'Profit', curve: 'smooth' },
   ],
   height: 360,
+  theme: 'light',
   axes: { y: { format: (v) => `$${v}k` } },
 });
+
+// Demo the streaming API: append a new month every 1.5s, drop the oldest.
+let n = 8;
+const months = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+let i = 0;
+const timer = setInterval(() => {
+  if (i >= months.length) return clearInterval(timer);
+  const sales = 40 + Math.round(Math.abs(Math.sin(n)) * 40);
+  chart.appendData({ month: months[i], sales, profit: Math.round(sales * 0.5) });
+  n++;
+  i++;
+}, 1500);

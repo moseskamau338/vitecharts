@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phase 0 complete + release infra wired — monorepo builds, tests, lints, publishes.
+> **Status:** Phases 0–1 complete — reactive core engine, scales, marks, spec compiler, line chart.
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -227,19 +227,20 @@ Phases are sequenced so there's a runnable, demo-able artifact as early as possi
 
 **Exit criteria:** `pnpm build && pnpm test` green; sandbox shows a static line chart.
 
-### Phase 1 — Core Engine
+### Phase 1 — Core Engine — ✅ COMPLETE
 
 **Goal:** the declarative spine everything else hangs off.
 
-- Options → spec compiler: validation, deep-merge defaults, theme merge, responsive merge.
-- Scale system wrapping D3 (linear, log, time, band, point, color/ordinal).
-- Mark primitives (line, area, rect/bar, point, arc) on the `Renderer` abstraction.
-- Reactive store (signals) + lifecycle: `create → render → update → resize → destroy`.
-- Resize handling (ResizeObserver), devicePixelRatio-aware Canvas backend stub.
-- Public imperative API: `new Chart(el, options)`, `.update()`, `.updateSeries()`,
-  `.appendData()`, `.destroy()`.
+- ✅ Options → spec compiler: validation, deep-merge defaults, theme merge.
+- ✅ Scale system wrapping D3 (linear, log, time, band, point, color/ordinal).
+- ✅ Mark primitives (line, area, rect/bar, point, arc) on the `Renderer` abstraction.
+- ✅ Reactive store (signals) + lifecycle: `create → render → update → resize → destroy`.
+- ✅ Resize handling (ResizeObserver), devicePixelRatio-aware Canvas backend stub.
+- ✅ Public imperative API: `new Chart(el, options)`, `.update()`, `.updateSeries()`,
+  `.setData()`, `.appendData()`, `.destroy()`.
 
-**Exit criteria:** create a chart, mutate options/data imperatively, see it re-render.
+**Exit criteria:** create a chart, mutate options/data imperatively, see it re-render. ✅
+_31 unit tests across signals, scales, marks, compiler, Chart API, and the Canvas stub._
 
 ### Phase 2 — Animation Engine
 

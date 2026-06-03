@@ -1,29 +1,23 @@
 import { registry } from './charts/registry.js';
-import { DEFAULT_COLORS } from './palette.js';
+import { effect, signal, type Signal } from './reactive/signal.js';
 import { SvgRenderer } from './renderer/svg.js';
 import type { Renderer } from './renderer/types.js';
-import type { ChartOptions, Padding, ResolvedOptions } from './types.js';
+import { compileSpec } from './spec/compile.js';
+import type { ChartOptions, Row, SeriesOption } from './types.js';
 
-const DEFAULT_PADDING: Padding = { top: 20, right: 24, bottom: 32, left: 48 };
 const DEFAULT_HEIGHT = 360;
 const FALLBACK_WIDTH = 640;
 
-function resolveOptions(o: ChartOptions): ResolvedOptions {
-  return {
-    ...o,
-    padding: { ...DEFAULT_PADDING, ...o.padding },
-    colors: o.colors ?? DEFAULT_COLORS,
-  };
-}
-
 /**
- * The imperative entry point. Mirrors the lifecycle from the roadmap:
- * `create → render → update → resize → destroy`.
+ * The imperative entry point. Options and container width are reactive signals;
+ * a single render effect re-draws whenever either changes, implementing the
+ * lifecycle `create → render → update → resize → destroy`.
  */
 export class Chart {
-  private readonly container: HTMLElement;
   private readonly renderer: Renderer;
-  private options: ChartOptions;
+  private readonly options: Signal<ChartOptions>;
+  private readonly containerWidth: Signal<number>;
+  private readonly dispose: () => void;
   private observer?: ResizeObserver;
 
   constructor(target: string | HTMLElement, options: ChartOptions) {
@@ -31,45 +25,62 @@ export class Chart {
       typeof target === 'string' ? (document.querySelector(target) as HTMLElement | null) : target;
     if (!el) throw new Error(`ViteCharts: render target not found: ${String(target)}`);
 
-    this.container = el;
-    this.options = options;
     this.renderer = new SvgRenderer(el);
-    this.render();
+    this.options = signal(options);
+    this.containerWidth = signal(el.clientWidth);
 
-    // Responsive: re-render on container resize unless a fixed width was given.
+    // Reactive render loop: reads both signals, so updates and resizes redraw.
+    this.dispose = effect(() => {
+      const opts = this.options.value;
+      const measured = this.containerWidth.value;
+      const width = opts.width ?? (measured || FALLBACK_WIDTH);
+      const height = opts.height ?? DEFAULT_HEIGHT;
+      this.draw(opts, width, height);
+    });
+
     if (options.width == null && typeof ResizeObserver !== 'undefined') {
-      this.observer = new ResizeObserver(() => this.render());
+      this.observer = new ResizeObserver(() => {
+        this.containerWidth.value = el.clientWidth;
+      });
       this.observer.observe(el);
     }
   }
 
+  private draw(options: ChartOptions, width: number, height: number): void {
+    const spec = compileSpec(options);
+    const chart = registry[spec.type];
+    if (!chart) throw new Error(`ViteCharts: unknown chart type "${spec.type}"`);
+    this.renderer.clear();
+    this.renderer.resize(width, height);
+    chart.render({ renderer: this.renderer, width, height, spec });
+  }
+
   /** Merge a partial patch into the current options and re-render. */
   update(patch: Partial<ChartOptions>): this {
-    this.options = { ...this.options, ...patch };
-    this.render();
+    this.options.value = { ...this.options.value, ...patch };
     return this;
   }
 
-  private render(): void {
-    const width = this.options.width ?? (this.container.clientWidth || FALLBACK_WIDTH);
-    const height = this.options.height ?? DEFAULT_HEIGHT;
-
-    const chart = registry[this.options.type];
-    if (!chart) throw new Error(`ViteCharts: unknown chart type "${this.options.type}"`);
-
-    this.renderer.clear();
-    this.renderer.resize(width, height);
-    chart.render({
-      renderer: this.renderer,
-      width,
-      height,
-      options: resolveOptions(this.options),
-    });
+  /** Replace the series definitions. */
+  updateSeries(series: SeriesOption[]): this {
+    return this.update({ series });
   }
 
-  /** Tear down observers and unmount the surface. */
+  /** Replace the dataset. */
+  setData(data: ReadonlyArray<Row>): this {
+    return this.update({ data });
+  }
+
+  /** Append one or more rows to the dataset (for streaming/realtime). */
+  appendData(rows: Row | ReadonlyArray<Row>): this {
+    const incoming = Array.isArray(rows) ? rows : [rows as Row];
+    return this.update({ data: [...this.options.value.data, ...incoming] });
+  }
+
+  /** Tear down the render effect, observer, and surface. */
   destroy(): void {
     this.observer?.disconnect();
+    this.dispose();
     this.renderer.destroy();
   }
 }

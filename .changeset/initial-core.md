@@ -2,6 +2,15 @@
 '@vitecharts/core': minor
 ---
 
-Initial release: backend-agnostic `Renderer` contract with an SVG backend, a line
-chart type with inferred linear/time/category x-scales, and the imperative `Chart`
-API (`create → render → update → resize → destroy`).
+Initial core engine.
+
+- Backend-agnostic `Renderer` contract with an SVG backend and an experimental,
+  DPR-aware Canvas backend stub.
+- Reactive store (`signal` / `effect` / `computed`) driving the chart lifecycle.
+- Spec compiler: validation, default merging, theming (light/dark + overrides),
+  and series color resolution.
+- Scale system over D3 (`linear` / `log` / `time` / `band` / `point` / ordinal color).
+- Mark primitives: line, area, point, bar, arc (with curve interpolation).
+- Line chart type rendered through scales + marks.
+- Imperative `Chart` API: `update`, `updateSeries`, `setData`, `appendData`,
+  `destroy`, with responsive resize.
