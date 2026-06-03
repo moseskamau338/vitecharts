@@ -149,6 +149,12 @@ export interface ChartOptions {
   dataLabels?: boolean;
   /** Chromeless inline mode — no axes, grid, padding, or tooltip. */
   sparkline?: boolean;
+  /** Enable wheel/selection zoom on a numeric/time x axis. */
+  zoom?: boolean;
+  /** Enable drag-to-pan (numeric/time x axis). */
+  pan?: boolean;
+  /** Show the toolbar (zoom controls + export menu). */
+  toolbar?: boolean;
 }
 
 // --------------------------------------------------------------------------

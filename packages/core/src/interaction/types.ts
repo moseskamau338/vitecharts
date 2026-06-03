@@ -41,6 +41,8 @@ export interface ChartEventMap {
   legendClick: { seriesIndex: number; name: string; hidden: boolean };
   /** Emitted when a brush selection finishes; x0/x1 are data values. */
   brushSelection: { x0: unknown; x1: unknown; px0: number; px1: number };
+  /** Emitted when the zoom window changes (or resets, with null). */
+  zoomed: { min: number; max: number } | null;
 }
 
 export type TooltipRenderer = (group: XGroup) => string;

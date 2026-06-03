@@ -7,8 +7,10 @@ import { BrushController } from './interaction/brush.js';
 import { InteractionController } from './interaction/controller.js';
 import { Legend, type LegendPosition } from './interaction/legend.js';
 import { broadcastHide, broadcastShow, joinSyncGroup } from './interaction/sync.js';
+import { Toolbar, type ExportFormat } from './interaction/toolbar.js';
 import { Tooltip } from './interaction/tooltip.js';
-import type { ChartEventMap } from './interaction/types.js';
+import { ZoomController, type Range } from './interaction/zoom.js';
+import type { ChartEventMap, PlotBounds } from './interaction/types.js';
 import { effect, signal, type Signal } from './reactive/signal.js';
 import { SvgRenderer } from './renderer/svg.js';
 import { compileSpec } from './spec/compile.js';
@@ -17,6 +19,13 @@ import type { ChartOptions, Row, SeriesOption } from './types.js';
 
 const DEFAULT_HEIGHT = 360;
 const FALLBACK_WIDTH = 640;
+
+/** Coerce an x value to a number for zoom math (Date → ms), else null. */
+function toNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (value instanceof Date) return value.getTime();
+  return null;
+}
 
 /** Tracks in-flight tweens so they can be cancelled on redraw / destroy. */
 class AnimationRunner {
@@ -52,7 +61,11 @@ export class Chart {
   private legend: Legend | null = null;
   private controller: InteractionController | null = null;
   private brush: BrushController | null = null;
+  private zoomCtl: ZoomController | null = null;
+  private toolbar: Toolbar | null = null;
   private leaveSyncGroup: (() => void) | null = null;
+  private zoomWindow: Range | null = null;
+  private bounds: PlotBounds | null = null;
 
   constructor(target: string | HTMLElement, options: ChartOptions) {
     const el =
@@ -83,7 +96,8 @@ export class Chart {
   }
 
   private draw(container: HTMLElement, options: ChartOptions, width: number, height: number): void {
-    const spec = compileSpec(options);
+    const drawOptions = this.applyZoom(options);
+    const spec = compileSpec(drawOptions);
     spec.series.forEach((s, i) => {
       s.hidden = this.hidden.has(i);
     });
@@ -108,6 +122,7 @@ export class Chart {
       animation: { config, enter, track: (h) => this.runner.track(h) },
       scene: {
         setModel: (m) => {
+          this.bounds = m.bounds;
           this.controller?.setModel(m);
           this.brush?.setModel(m);
         },
@@ -131,6 +146,68 @@ export class Chart {
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     title.textContent = label;
     svg.insertBefore(title, svg.firstChild);
+  }
+
+  /** Numeric/time extent of the x values, or null when x is categorical. */
+  private xExtent(options: ChartOptions): Range | null {
+    const nums: number[] = [];
+    for (const row of options.data) {
+      const n = toNumber(row[options.x]);
+      if (n == null) return null; // any non-numeric x → no zoom
+      nums.push(n);
+    }
+    if (nums.length === 0) return null;
+    return [Math.min(...nums), Math.max(...nums)];
+  }
+
+  /** Filter data + clamp the x axis to the current zoom window. */
+  private applyZoom(options: ChartOptions): ChartOptions {
+    if (!this.zoomWindow) return options;
+    const [w0, w1] = this.zoomWindow;
+    const data = options.data.filter((row) => {
+      const n = toNumber(row[options.x]);
+      return n != null && n >= w0 && n <= w1;
+    });
+    return {
+      ...options,
+      data,
+      axes: { ...options.axes, x: { ...options.axes?.x, min: w0, max: w1 } },
+    };
+  }
+
+  private setZoom(window: Range | null): void {
+    this.zoomWindow = window;
+    this.emitter.emit('zoomed', window ? { min: window[0], max: window[1] } : null);
+    this.options.value = { ...this.options.value }; // force redraw
+  }
+
+  private zoomBy(factor: number): void {
+    const extent = this.xExtent(this.options.value);
+    if (!extent) return;
+    const [w0, w1] = this.zoomWindow ?? extent;
+    const center = (w0 + w1) / 2;
+    const half = ((w1 - w0) / 2) * factor;
+    const min = Math.max(extent[0], center - half);
+    const max = Math.min(extent[1], center + half);
+    this.setZoom([min, max]);
+  }
+
+  /** Zoom the x axis in (numeric/time x only). */
+  zoomIn(): this {
+    this.zoomBy(0.6);
+    return this;
+  }
+
+  /** Zoom the x axis out. */
+  zoomOut(): this {
+    this.zoomBy(1 / 0.6);
+    return this;
+  }
+
+  /** Reset the zoom window. */
+  resetZoom(): this {
+    this.setZoom(null);
+    return this;
   }
 
   private setupInteraction(
@@ -180,6 +257,41 @@ export class Chart {
       this.leaveSyncGroup = joinSyncGroup(groupId, peer);
       this.on('pointerMove', ({ group }) => broadcastShow(groupId, peer, group.xRaw));
       this.on('pointerLeave', () => broadcastHide(groupId, peer));
+    }
+
+    // Zoom / pan / toolbar (numeric-or-time x only for zoom).
+    const zoomable = this.xExtent(options) != null;
+    if ((options.zoom || options.pan) && zoomable) {
+      this.zoomCtl = new ZoomController(this.renderer.mount, {
+        bounds: () => this.bounds,
+        window: () => this.zoomWindow,
+        extent: () => this.xExtent(this.options.value),
+        onChange: (w) => this.setZoom(w),
+        panEnabled: () => !!options.pan,
+      });
+    }
+    // Selection-zoom: when zoom is on (and not panning), drag-select to zoom.
+    if (options.zoom && !options.pan && zoomable && !this.brush) {
+      this.brush = new BrushController(
+        this.renderer.mount,
+        this.emitter,
+        theme.colors[0] ?? '#008FFB',
+      );
+      this.on('brushSelection', ({ x0, x1 }) => {
+        const a = toNumber(x0);
+        const b = toNumber(x1);
+        if (a != null && b != null) this.setZoom([Math.min(a, b), Math.max(a, b)]);
+      });
+    }
+
+    if (options.toolbar) {
+      this.toolbar = new Toolbar(container, theme, {
+        zoomable,
+        zoomIn: () => this.zoomIn(),
+        zoomOut: () => this.zoomOut(),
+        reset: () => this.resetZoom(),
+        download: (fmt: ExportFormat) => void this.download(fmt),
+      });
     }
   }
 
@@ -272,6 +384,8 @@ export class Chart {
     this.runner.cancelAll();
     this.controller?.destroy();
     this.brush?.destroy();
+    this.zoomCtl?.destroy();
+    this.toolbar?.destroy();
     this.leaveSyncGroup?.();
     this.tooltip?.destroy();
     this.legend?.destroy();

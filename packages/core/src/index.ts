@@ -82,6 +82,8 @@ export { Tooltip } from './interaction/tooltip.js';
 export { Legend, type LegendPosition } from './interaction/legend.js';
 export { InteractionController } from './interaction/controller.js';
 export { BrushController } from './interaction/brush.js';
+export { ZoomController } from './interaction/zoom.js';
+export { Toolbar, type ExportFormat } from './interaction/toolbar.js';
 export { joinSyncGroup, broadcastShow, broadcastHide, type SyncPeer } from './interaction/sync.js';
 export type {
   PlotPoint,
