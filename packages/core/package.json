@@ -1,0 +1,70 @@
+{
+  "name": "@vitecharts/core",
+  "version": "0.0.0",
+  "description": "ViteCharts core engine — renderer abstraction, scene graph, scales, and chart types.",
+  "license": "Apache-2.0",
+  "author": "The ViteCharts Authors",
+  "homepage": "https://github.com/vitecharts/vitecharts#readme",
+  "bugs": "https://github.com/vitecharts/vitecharts/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitecharts/vitecharts.git",
+    "directory": "packages/core"
+  },
+  "keywords": [
+    "charts",
+    "charting",
+    "dataviz",
+    "data-visualization",
+    "svg",
+    "d3",
+    "observable-plot",
+    "apexcharts",
+    "animation"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check:exports": "publint --strict && attw --pack ."
+  },
+  "dependencies": {
+    "d3-array": "^3.2.4",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/d3-array": "^3.2.1",
+    "@types/d3-scale": "^4.0.8",
+    "@types/d3-shape": "^3.1.7",
+    "jsdom": "^25.0.1",
+    "vite-plugin-dts": "^4.4.0"
+  }
+}
