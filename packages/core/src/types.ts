@@ -7,7 +7,7 @@ import type { ResolvedTheme, ThemeOption } from './theme.js';
 export type Row = Record<string, unknown>;
 
 /** Chart types the registry can render. Grows per phase. */
-export type ChartTypeName = 'line';
+export type ChartTypeName = 'line' | 'area' | 'bar' | 'scatter';
 
 /** Line interpolation. */
 export type CurveType = 'linear' | 'smooth' | 'step' | 'basis';
@@ -23,10 +23,14 @@ export interface SeriesOption {
   name?: string;
   /** Stroke/fill color (defaults to the theme palette). */
   color?: string;
-  /** Per-series type override (enables combo charts later). */
+  /** Per-series type override (enables combo charts). */
   type?: ChartTypeName;
   /** Line interpolation for this series. */
   curve?: CurveType;
+  /** Fill opacity for area/bar marks. */
+  fillOpacity?: number;
+  /** Key holding a per-point size value (turns scatter into a bubble chart). */
+  size?: string;
 }
 
 export interface AxisOption {
@@ -67,8 +71,10 @@ export interface ChartOptions {
   theme?: ThemeOption;
   /** Animation config: `false`, a preset name, or a detailed object. */
   animate?: AnimateOption;
-  /** Draw point markers on each series. */
+  /** Draw point markers on each series (line/area). */
   markers?: boolean;
+  /** Stack area/bar series instead of overlaying/grouping them. */
+  stack?: boolean;
 }
 
 // --------------------------------------------------------------------------
@@ -81,6 +87,8 @@ export interface ResolvedSeries {
   color: string;
   type: ChartTypeName;
   curve: CurveType;
+  fillOpacity: number;
+  size?: string;
 }
 
 export interface ResolvedAxis {
@@ -101,6 +109,7 @@ export interface CompiledSpec {
   yAxis: ResolvedAxis;
   theme: ResolvedTheme;
   markers: boolean;
+  stacked: boolean;
 }
 
 /**

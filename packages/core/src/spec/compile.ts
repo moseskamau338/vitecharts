@@ -40,13 +40,18 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
 
   const theme = resolveTheme(options.theme, options.colors);
 
-  const series = options.series.map((s, i) => ({
-    y: s.y,
-    name: s.name ?? s.y,
-    color: s.color ?? theme.colors[i % theme.colors.length] ?? '#000000',
-    type: s.type ?? options.type,
-    curve: s.curve ?? ('linear' as const),
-  }));
+  const series = options.series.map((s, i) => {
+    const type = s.type ?? options.type;
+    return {
+      y: s.y,
+      name: s.name ?? s.y,
+      color: s.color ?? theme.colors[i % theme.colors.length] ?? '#000000',
+      type,
+      curve: s.curve ?? ('linear' as const),
+      fillOpacity: s.fillOpacity ?? (type === 'area' ? 0.25 : 1),
+      size: s.size,
+    };
+  });
 
   return {
     type: options.type,
@@ -58,5 +63,6 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
     yAxis: resolveAxis(options.axes?.y, 5),
     theme,
     markers: options.markers ?? false,
+    stacked: options.stack ?? false,
   };
 }

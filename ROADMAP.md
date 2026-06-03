@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–2 complete — reactive core, scales, marks, spec compiler, line chart, animation engine.
+> **Status:** Phases 0–3 complete — core engine, animation, and the cartesian chart pack (line/area/bar/scatter/combo).
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -150,17 +150,17 @@ Tracking against ApexCharts' published feature set. ✅ shipped · 🚧 in progr
 
 | Type                             | Status |
 | -------------------------------- | :----: |
-| Line                             |   🚧   |
-| Area (incl. stacked)             |   ⬜   |
-| Spline / smooth                  |   ⬜   |
-| Column / Bar (grouped/stack)     |   ⬜   |
+| Line                             |   ✅   |
+| Area (incl. stacked)             |   ✅   |
+| Spline / smooth                  |   ✅   |
+| Column / Bar (grouped/stack)     |   ✅   |
 | 100% stacked                     |   ⬜   |
 | Range bar / range area           |   ⬜   |
 | Bar with negative values         |   ⬜   |
 | Candlestick (OHLC)               |   ⬜   |
 | Boxplot                          |   ⬜   |
-| Scatter                          |   ⬜   |
-| Bubble                           |   ⬜   |
+| Scatter                          |   ✅   |
+| Bubble                           |   ✅   |
 | Heatmap                          |   ⬜   |
 | Treemap                          |   ⬜   |
 | Pie / Donut                      |   ⬜   |
@@ -171,7 +171,7 @@ Tracking against ApexCharts' published feature set. ✅ shipped · 🚧 in progr
 | Timeline / Rangebar (Gantt-lite) |   ⬜   |
 | Slope                            |   ⬜   |
 | Sparkline (inline)               |   ⬜   |
-| Combo / Mixed                    |   ⬜   |
+| Combo / Mixed                    |   ✅   |
 | Synced / brush charts            |   ⬜   |
 
 ### Interaction & UX
@@ -268,17 +268,21 @@ _31 unit tests across signals, scales, marks, compiler, Chart API, and the Canva
 **Exit criteria:** line draw-on + marker pop on mount, live-updating line, all honoring
 reduced-motion. ✅ _(bar grow / donut sweep verified via unit tests pending their chart types.)_
 
-### Phase 3 — Cartesian Chart Pack
+### Phase 3 — Cartesian Chart Pack — ✅ CORE COMPLETE
 
 **Goal:** the workhorse charts, production quality.
 
-- Line, spline, area (stacked, 100% stacked), column/bar (grouped, stacked, negative),
-  range bar/area, scatter, bubble, combo/mixed.
-- Axes: multi-axis, log, time, category; ticks, gridlines, formatting hooks.
-- Data labels, markers, gradients/patterns/fills, dashed/stroke styling.
-- Sparkline mode (chromeless inline charts).
+- ✅ Shared cartesian frame (scales + grid + axes) reused by every type.
+- ✅ Line, spline (smooth curve), area (incl. stacked), column/bar (grouped + stacked,
+  negative-aware), scatter, bubble (size key), combo/mixed via per-series `type`.
+- ✅ Bar-grow / area-fade / draw-on / point-pop animations wired per series.
+- ✅ Axes: log/time/category/linear, ticks, gridlines, formatting hooks.
 
-**Exit criteria:** all cartesian types in the sandbox with theming + animation + labels.
+**Deferred:** range bar/area, data labels, gradients/patterns, sparkline mode, multi-axis,
+horizontal bars — follow-ups once interaction (Phase 4) lands.
+
+**Exit criteria:** all cartesian types render with theming + animation. ✅
+_6 chart-type tests (bar grouped/stacked, area, scatter, bubble, combo)._
 
 ### Phase 4 — Interaction Layer
 
