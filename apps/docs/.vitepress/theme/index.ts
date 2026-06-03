@@ -6,6 +6,7 @@ import ThemeDemo from './ThemeDemo.vue';
 import ExportDemo from './ExportDemo.vue';
 import BrushDemo from './BrushDemo.vue';
 import SyncDemo from './SyncDemo.vue';
+import MorphDemo from './MorphDemo.vue';
 
 export default {
   extends: DefaultTheme,
@@ -16,5 +17,6 @@ export default {
     app.component('ExportDemo', ExportDemo);
     app.component('BrushDemo', BrushDemo);
     app.component('SyncDemo', SyncDemo);
+    app.component('MorphDemo', MorphDemo);
   },
 } satisfies Theme;

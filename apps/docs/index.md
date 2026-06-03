@@ -23,7 +23,7 @@ features:
     details: All logic lives in a framework-agnostic core. React, Vue, and a Web Component are thin wrappers; bring your own framework or none.
   - icon: 📊
     title: A full catalog
-    details: Line, area, bar, scatter, bubble, combo, pie, donut, polar area, radial gauge, and radar — plus tooltips, legend, crosshair, brushing, and sync.
+    details: Line, area, bar, scatter, combo, pie, donut, polar, gauge, radar, candlestick, boxplot, heatmap, funnel, and range — with tooltips, legend, zoom/pan, brushing, and sync.
   - icon: 📦
     title: Small & typed
     details: ESM-first, tree-shakeable, ~5 kB gzipped core with d3 externalized. Strict TypeScript types ship with every package.

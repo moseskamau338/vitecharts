@@ -39,6 +39,17 @@ new Chart('#el', {
 When the user's OS requests reduced motion (`prefers-reduced-motion: reduce`), animations
 are disabled automatically and the chart renders its final frame instantly — no extra config.
 
+## Update-morph (FLIP)
+
+When the data changes, bars **slide and resize from their previous positions** rather than
+snapping — and data labels **count up** to the new value. Shuffle the data to see it:
+
+<MorphDemo />
+
+```ts
+chart.setData(nextData); // bars morph + labels count up automatically
+```
+
 ## Streaming
 
 Append data over time and the chart updates live. Press start:
