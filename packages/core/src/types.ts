@@ -12,7 +12,16 @@ export type LegendOption = boolean | { position?: LegendPosition };
 export type Row = Record<string, unknown>;
 
 /** Chart types the registry can render. Grows per phase. */
-export type ChartTypeName = 'line' | 'area' | 'bar' | 'scatter';
+export type ChartTypeName =
+  | 'line'
+  | 'area'
+  | 'bar'
+  | 'scatter'
+  | 'pie'
+  | 'donut'
+  | 'polarArea'
+  | 'radialBar'
+  | 'radar';
 
 /** Line interpolation. */
 export type CurveType = 'linear' | 'smooth' | 'step' | 'basis';
@@ -86,6 +95,8 @@ export interface ChartOptions {
   legend?: LegendOption;
   /** Show a crosshair line on hover. Defaults to enabled when the tooltip is. */
   crosshair?: boolean;
+  /** Inner radius as a fraction of the outer radius (0–1) for pie/donut/radial. */
+  innerRadius?: number;
 }
 
 // --------------------------------------------------------------------------
@@ -122,6 +133,7 @@ export interface CompiledSpec {
   theme: ResolvedTheme;
   markers: boolean;
   stacked: boolean;
+  innerRadius: number;
 }
 
 /**

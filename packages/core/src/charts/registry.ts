@@ -1,5 +1,6 @@
 import type { ChartType } from '../types.js';
 import { cartesianChart } from './cartesian.js';
+import { pieChart, polarAreaChart, radarChart, radialBarChart } from './radial.js';
 
 /**
  * Chart-type registry. Each phase registers more types here; the {@link Chart}
@@ -12,4 +13,9 @@ export const registry: Record<string, ChartType> = {
   area: cartesianChart,
   bar: cartesianChart,
   scatter: cartesianChart,
+  pie: pieChart,
+  donut: pieChart, // innerRadius (default 0.6) drives the hole
+  polarArea: polarAreaChart,
+  radialBar: radialBarChart,
+  radar: radarChart,
 };

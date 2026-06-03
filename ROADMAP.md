@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–4 (core) complete — engine, animation, cartesian pack, and interaction (tooltip/crosshair/legend/events).
+> **Status:** Phases 0–4 + radial pack — engine, animation, cartesian + radial charts, interaction.
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -163,10 +163,10 @@ Tracking against ApexCharts' published feature set. ✅ shipped · 🚧 in progr
 | Bubble                           |   ✅   |
 | Heatmap                          |   ⬜   |
 | Treemap                          |   ⬜   |
-| Pie / Donut                      |   ⬜   |
-| Radial bar / gauge               |   ⬜   |
-| Radar                            |   ⬜   |
-| Polar area                       |   ⬜   |
+| Pie / Donut                      |   ✅   |
+| Radial bar / gauge               |   ✅   |
+| Radar                            |   ✅   |
+| Polar area                       |   ✅   |
 | Funnel / Pyramid                 |   ⬜   |
 | Timeline / Rangebar (Gantt-lite) |   ⬜   |
 | Slope                            |   ⬜   |
@@ -311,16 +311,17 @@ _6 interaction tests (tooltip show/hide, crosshair, events, legend toggle, disab
 
 **Exit criteria:** Apex-style brush+detail demo and a synced multi-chart dashboard.
 
-### Phase 6 — Radial, Hierarchical & Statistical Pack
+### Phase 6 — Radial, Hierarchical & Statistical Pack — 🚧 RADIAL DONE
 
 **Goal:** the rest of the chart catalog.
 
-- Pie, donut (with total/center label), radial bar/gauge, polar area, radar.
-- Candlestick + OHLC, boxplot (statistical transforms).
-- Heatmap, treemap, funnel/pyramid, timeline/rangebar, slope.
-- Reuse animation choreography (arc sweep, cell fade, etc.).
+- ✅ Pie, donut (with center total), radial bar/gauge, polar area, radar — sharing a
+  radial geometry helper and the arc-sweep / fade choreography.
+- ⏭️ Candlestick + OHLC, boxplot (statistical transforms).
+- ⏭️ Heatmap, treemap, funnel/pyramid, timeline/rangebar, slope.
 
-**Exit criteria:** parity matrix §5 chart types all ✅ or explicitly deferred.
+**Exit criteria:** parity matrix §5 chart types all ✅ or explicitly deferred. _Radial family
+shipped; statistical + hierarchical types deferred (each needs a non-series data model)._
 
 ### Phase 7 — Annotations, Themes & Export
 

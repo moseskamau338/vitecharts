@@ -65,5 +65,6 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
     theme,
     markers: options.markers ?? false,
     stacked: options.stack ?? false,
+    innerRadius: options.innerRadius ?? (options.type === 'donut' ? 0.6 : 0),
   };
 }
