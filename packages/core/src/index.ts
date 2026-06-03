@@ -39,6 +39,32 @@ export type {
 // Reactive store
 export { signal, effect, computed, type Signal } from './reactive/signal.js';
 
+// Animation engine
+export {
+  scheduler,
+  tween,
+  createSpring,
+  resolveAnimation,
+  prefersReducedMotion,
+  polylineLength,
+  animateDrawOn,
+  animateAttr,
+  animateFadeIn,
+  animateBarGrow,
+  animateArcSweep,
+  EASINGS,
+  type TweenHandle,
+  type TweenOptions,
+  type SpringOptions,
+  type SpringStep,
+  type AnimationPreset,
+  type AnimationOption,
+  type AnimateOption,
+  type AnimationConfig,
+  type EasingFn,
+  type EasingName,
+} from './anim/index.js';
+
 // Theme + palette
 export { resolveTheme, lightTheme, darkTheme } from './theme.js';
 export type { ResolvedTheme, ThemeName, ThemeOption } from './theme.js';
@@ -60,6 +86,7 @@ export type {
   ResolvedAxis,
   ChartType,
   ChartContext,
+  ChartAnimation,
   Row,
 } from './types.js';
 

@@ -9,7 +9,21 @@ export default {
     'scope-enum': [
       0,
       'always',
-      ['core', 'charts', 'react', 'vue', 'svelte', 'angular', 'solid', 'wc', 'export', 'sandbox', 'docs', 'release', 'repo'],
+      [
+        'core',
+        'charts',
+        'react',
+        'vue',
+        'svelte',
+        'angular',
+        'solid',
+        'wc',
+        'export',
+        'sandbox',
+        'docs',
+        'release',
+        'repo',
+      ],
     ],
   },
 };

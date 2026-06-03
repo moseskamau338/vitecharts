@@ -20,6 +20,8 @@ const chart = new Chart('#chart', {
   ],
   height: 360,
   theme: 'light',
+  markers: true,
+  animate: 'apex', // line draw-on + staggered marker pop on mount
   axes: { y: { format: (v) => `$${v}k` } },
 });
 

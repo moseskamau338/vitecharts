@@ -1,3 +1,5 @@
+import type { AnimateOption, AnimationConfig } from './anim/presets.js';
+import type { TweenHandle } from './anim/tween.js';
 import type { Renderer } from './renderer/types.js';
 import type { ScaleType } from './scales/index.js';
 import type { ResolvedTheme, ThemeOption } from './theme.js';
@@ -63,6 +65,10 @@ export interface ChartOptions {
   colors?: string[];
   /** Theme name or partial override. */
   theme?: ThemeOption;
+  /** Animation config: `false`, a preset name, or a detailed object. */
+  animate?: AnimateOption;
+  /** Draw point markers on each series. */
+  markers?: boolean;
 }
 
 // --------------------------------------------------------------------------
@@ -94,6 +100,18 @@ export interface CompiledSpec {
   xAxis: ResolvedAxis;
   yAxis: ResolvedAxis;
   theme: ResolvedTheme;
+  markers: boolean;
+}
+
+/**
+ * Animation surface passed to chart types each frame. `enter` is true on the
+ * first render (play the full entrance); `track` registers tween handles so the
+ * Chart can cancel them on the next redraw or on destroy.
+ */
+export interface ChartAnimation {
+  config: AnimationConfig;
+  enter: boolean;
+  track(handle: TweenHandle | null): void;
 }
 
 // --------------------------------------------------------------------------
@@ -106,6 +124,7 @@ export interface ChartContext {
   width: number;
   height: number;
   spec: CompiledSpec;
+  animation: ChartAnimation;
 }
 
 export interface ChartType {

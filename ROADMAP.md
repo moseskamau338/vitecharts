@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–1 complete — reactive core engine, scales, marks, spec compiler, line chart.
+> **Status:** Phases 0–2 complete — reactive core, scales, marks, spec compiler, line chart, animation engine.
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -178,7 +178,7 @@ Tracking against ApexCharts' published feature set. ✅ shipped · 🚧 in progr
 
 | Feature                                        | Status |
 | ---------------------------------------------- | :----: |
-| Animations: entrance / update / morph          |   ⬜   |
+| Animations: entrance / update / morph          |   🚧   |
 | Dynamic data update (streaming/append)         |   ⬜   |
 | Tooltip (shared, custom, fixed)                |   ⬜   |
 | Crosshairs / markers                           |   ⬜   |
@@ -242,20 +242,31 @@ Phases are sequenced so there's a runnable, demo-able artifact as early as possi
 **Exit criteria:** create a chart, mutate options/data imperatively, see it re-render. ✅
 _31 unit tests across signals, scales, marks, compiler, Chart API, and the Canvas stub._
 
-### Phase 2 — Animation Engine
+### Phase 2 — Animation Engine — ✅ CORE COMPLETE
 
 **Goal:** the "Apex feel."
 
-- Tween core: easing fns + spring solver; per-frame scheduler (rAF), batching.
-- FLIP for layout transitions (bars resize, axes rescale, points reposition).
-- Enter/update/exit choreography per mark type (line draw-on, bar grow, arc sweep,
-  point pop). Match Apex's default timings/easings as a baseline preset.
-- `prefers-reduced-motion` → instant/none mode. Per-chart animation config
-  (speed, easing, enabled, dynamicAnimation for updates).
-- Streaming/append animation (realtime line/area).
+- ✅ Tween core: easing fns + spring solver; per-frame scheduler (rAF), batching.
+- ✅ Enter choreography helpers per mark (line draw-on, marker pop, bar grow,
+  arc sweep) expressed via `NodeHandle.set()` so they're renderer-agnostic.
+- ✅ Apex-tuned presets (`apex` / `material` / `none`) as the timing/easing baseline.
+- ✅ `prefers-reduced-motion` → disabled mode. Per-chart `animate` config
+  (preset, duration, easing, delay, stagger, dynamic).
+- ✅ Line chart: staggered draw-on + marker pop on mount; tweens cancelled on
+  redraw/destroy so streaming updates stay clean.
 
-**Exit criteria:** line draw-on, bar grow, donut sweep, and a live-updating chart, all
-honoring reduced-motion. Visual-regression baselines captured.
+**Deferred (intentionally, with reasons):**
+
+- ⏭️ **FLIP update-morph** (smooth value interpolation on data change). The current
+  clear-and-redraw model snaps updates; true morphing needs keyed node retention.
+  Folding this in alongside the retained-node work in Phase 9.
+- ⏭️ **bar grow / arc/donut sweep** are built + unit-tested as helpers but only become
+  visible once the bar (Phase 3) and pie/donut (Phase 6) chart types exist.
+- ⏭️ **Visual-regression baselines** (Playwright) — deferred until more chart types
+  exist so the snapshot suite is worth standing up once.
+
+**Exit criteria:** line draw-on + marker pop on mount, live-updating line, all honoring
+reduced-motion. ✅ _(bar grow / donut sweep verified via unit tests pending their chart types.)_
 
 ### Phase 3 — Cartesian Chart Pack
 

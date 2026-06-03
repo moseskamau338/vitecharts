@@ -1,3 +1,5 @@
+import { resolveAnimation } from './anim/presets.js';
+import type { TweenHandle } from './anim/tween.js';
 import { registry } from './charts/registry.js';
 import { effect, signal, type Signal } from './reactive/signal.js';
 import { SvgRenderer } from './renderer/svg.js';
@@ -7,6 +9,20 @@ import type { ChartOptions, Row, SeriesOption } from './types.js';
 
 const DEFAULT_HEIGHT = 360;
 const FALLBACK_WIDTH = 640;
+
+/** Tracks in-flight tweens so they can be cancelled on redraw / destroy. */
+class AnimationRunner {
+  private readonly active = new Set<TweenHandle>();
+
+  track(handle: TweenHandle | null): void {
+    if (handle && !handle.done) this.active.add(handle);
+  }
+
+  cancelAll(): void {
+    for (const handle of this.active) handle.cancel();
+    this.active.clear();
+  }
+}
 
 /**
  * The imperative entry point. Options and container width are reactive signals;
@@ -18,6 +34,8 @@ export class Chart {
   private readonly options: Signal<ChartOptions>;
   private readonly containerWidth: Signal<number>;
   private readonly dispose: () => void;
+  private readonly runner = new AnimationRunner();
+  private firstRender = true;
   private observer?: ResizeObserver;
 
   constructor(target: string | HTMLElement, options: ChartOptions) {
@@ -50,9 +68,22 @@ export class Chart {
     const spec = compileSpec(options);
     const chart = registry[spec.type];
     if (!chart) throw new Error(`ViteCharts: unknown chart type "${spec.type}"`);
+
+    // Cancel any tweens from the previous frame before clearing their nodes.
+    this.runner.cancelAll();
+    const config = resolveAnimation(options.animate);
+    const enter = this.firstRender;
+
     this.renderer.clear();
     this.renderer.resize(width, height);
-    chart.render({ renderer: this.renderer, width, height, spec });
+    chart.render({
+      renderer: this.renderer,
+      width,
+      height,
+      spec,
+      animation: { config, enter, track: (h) => this.runner.track(h) },
+    });
+    this.firstRender = false;
   }
 
   /** Merge a partial patch into the current options and re-render. */
@@ -77,9 +108,10 @@ export class Chart {
     return this.update({ data: [...this.options.value.data, ...incoming] });
   }
 
-  /** Tear down the render effect, observer, and surface. */
+  /** Tear down the render effect, observer, animations, and surface. */
   destroy(): void {
     this.observer?.disconnect();
+    this.runner.cancelAll();
     this.dispose();
     this.renderer.destroy();
   }

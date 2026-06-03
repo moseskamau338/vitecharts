@@ -57,5 +57,6 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
     xAxis: resolveAxis(options.axes?.x, 6),
     yAxis: resolveAxis(options.axes?.y, 5),
     theme,
+    markers: options.markers ?? false,
   };
 }

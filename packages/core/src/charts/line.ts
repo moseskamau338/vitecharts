@@ -1,10 +1,13 @@
+import { animateAttr, animateDrawOn, polylineLength } from '../anim/choreography.js';
 import { drawLine } from '../marks/line.js';
 import type { PixelPoint } from '../marks/types.js';
 import { buildScale } from '../scales/index.js';
 import { isNumber } from '../util/guards.js';
 import type { ChartContext, ChartType } from '../types.js';
 
-function render({ renderer, width, height, spec }: ChartContext): void {
+const MARKER_RADIUS = 4;
+
+function render({ renderer, width, height, spec, animation }: ChartContext): void {
   const { padding, theme } = spec;
   const left = padding.left;
   const right = width - padding.right;
@@ -51,16 +54,44 @@ function render({ renderer, width, height, spec }: ChartContext): void {
     renderer.text(label, { x: px, y: bottom + 18, ...labelStyle('middle') }, xaxis);
   }
 
-  // series
+  // series — draw final geometry, then play enter choreography on first render
   const plot = renderer.group({ class: 'vitecharts-series' });
-  for (const s of spec.series) {
+  const { config, enter } = animation;
+  spec.series.forEach((s, i) => {
     const points: PixelPoint[] = [];
     for (const row of spec.data) {
       const value = row[s.y];
       if (isNumber(value)) points.push({ x: x.map(row[spec.x]), y: y.map(value) });
     }
-    drawLine(renderer, points, { stroke: s.color, width: 2, curve: s.curve }, plot);
-  }
+
+    const path = drawLine(renderer, points, { stroke: s.color, width: 2, curve: s.curve }, plot);
+    const delay = config.delay + i * config.stagger;
+    if (enter) {
+      animation.track(animateDrawOn(path, polylineLength(points), config, { delay }));
+    }
+
+    if (spec.markers) {
+      const markers = renderer.group({ class: 'vitecharts-markers' }, plot);
+      points.forEach((p, j) => {
+        const dot = renderer.circle(
+          {
+            cx: p.x,
+            cy: p.y,
+            r: MARKER_RADIUS,
+            fill: s.color,
+            stroke: '#ffffff',
+            'stroke-width': 1.5,
+          },
+          markers,
+        );
+        if (enter) {
+          // Pop each marker in just behind the advancing line.
+          const popDelay = delay + (j / Math.max(1, points.length)) * config.duration;
+          animation.track(animateAttr(dot, 'r', 0, MARKER_RADIUS, config, { delay: popDelay }));
+        }
+      });
+    }
+  });
 }
 
 export const lineChart: ChartType = { render };
