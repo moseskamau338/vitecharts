@@ -11,12 +11,14 @@ import { drawLine } from '../marks/line.js';
 import type { PixelPoint } from '../marks/types.js';
 import { buildScale, type PositionScale } from '../scales/index.js';
 import { isNumber } from '../util/guards.js';
+import { lttb } from '../util/downsample.js';
 import type { ChartContext, ChartType, ResolvedSeries } from '../types.js';
 import type { NodeHandle, Renderer } from '../renderer/types.js';
 import type { InteractionModel, PlotPoint, XGroup } from '../interaction/types.js';
 
 const MARKER_RADIUS = 4;
 const BAR_GAP = 0.85; // fraction of the available slot a bar fills
+const LTTB_THRESHOLD = 2000; // downsample line series longer than this
 
 interface Frame {
   x: PositionScale;
@@ -150,17 +152,27 @@ function record(
   sc.collect({ seriesIndex: sc.seriesIndex, name: s.name, color: s.color, xRaw, value, cx, cy });
 }
 
+interface RawPoint extends PixelPoint {
+  xRaw: unknown;
+  value: number;
+}
+
 function linePoints(sc: SeriesCtx, s: ResolvedSeries): PixelPoint[] {
-  const points: PixelPoint[] = [];
+  const raw: RawPoint[] = [];
   for (const row of sc.spec.data) {
     const v = row[s.y];
     if (!isNumber(v)) continue;
-    const cx = centerX(sc.frame, row[sc.spec.x]);
-    const cy = sc.frame.y.map(v);
-    points.push({ x: cx, y: cy });
-    record(sc, s, row[sc.spec.x], v, cx, cy);
+    raw.push({
+      x: centerX(sc.frame, row[sc.spec.x]),
+      y: sc.frame.y.map(v),
+      xRaw: row[sc.spec.x],
+      value: v,
+    });
   }
-  return points;
+  // Downsample very dense series (preserves shape, keeps the path light).
+  const pts = raw.length > LTTB_THRESHOLD ? lttb(raw, LTTB_THRESHOLD) : raw;
+  for (const p of pts) record(sc, s, p.xRaw, p.value, p.x, p.y);
+  return pts.map((p) => ({ x: p.x, y: p.y }));
 }
 
 function drawMarkers(

@@ -113,3 +113,4 @@ export type {
 
 // Utilities
 export { deepMerge, type DeepPartial } from './util/merge.js';
+export { lttb, type XY } from './util/downsample.js';

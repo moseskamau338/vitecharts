@@ -57,6 +57,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core
 
+  packages/compat-apex:
+    dependencies:
+      '@vitecharts/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/core:
     dependencies:
       d3-array:

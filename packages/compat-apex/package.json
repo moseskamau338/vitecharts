@@ -1,0 +1,30 @@
+{
+  "name": "@vitecharts/compat-apex",
+  "version": "0.0.0",
+  "description": "Best-effort translation of ApexCharts options to ViteCharts options.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@vitecharts/core": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

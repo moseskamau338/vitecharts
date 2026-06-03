@@ -114,10 +114,23 @@ export class Chart {
       },
     });
 
+    this.applyA11y(options, spec.type, spec.series.length);
+
     this.legend?.setItems(
       spec.series.map((s) => ({ name: s.name, color: s.color, hidden: s.hidden })),
     );
     this.firstRender = false;
+  }
+
+  /** Set ARIA role/label and a <title> so screen readers can describe the chart. */
+  private applyA11y(options: ChartOptions, type: string, seriesCount: number): void {
+    const svg = this.renderer.mount;
+    const label = options.ariaLabel ?? `${type} chart with ${seriesCount} series`;
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', label);
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = label;
+    svg.insertBefore(title, svg.firstChild);
   }
 
   private setupInteraction(

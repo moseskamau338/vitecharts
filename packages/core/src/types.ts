@@ -118,6 +118,8 @@ export interface ChartOptions {
   brush?: boolean;
   /** Sync group id — charts sharing it mirror hover crosshair/tooltip. */
   group?: string;
+  /** Accessible label for the chart (sets role="img" + aria-label + <title>). */
+  ariaLabel?: string;
 }
 
 // --------------------------------------------------------------------------

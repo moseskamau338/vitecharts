@@ -16,9 +16,11 @@ with an **Apex-grade interaction and animation layer** (draw-on, tween/spring, t
 brushing, export) and **thin, idiomatic adapters** for every major UI framework — all from
 one tree-shakeable core.
 
-> **Status:** early development. The core engine, scale/mark system, spec compiler, the line
-> chart, and the animation engine are in place. The rest of the chart catalog, interaction,
-> export, and framework adapters are landing phase by phase — see [`ROADMAP.md`](./ROADMAP.md).
+> **Status:** the engine, full chart catalog (line/area/bar/scatter/combo + pie/donut/
+> polar/gauge/radar), animation, interaction (tooltip/crosshair/legend/events), brushing &
+> sync, annotations, export (SVG/PNG/CSV/JSON), React/Vue/Web-Component adapters, an
+> ApexCharts compat shim, ARIA labels, and LTTB downsampling are all in place. Remaining: a
+> docs site, deeper a11y/perf hardening, and zoom/pan/toolbar — see [`ROADMAP.md`](./ROADMAP.md).
 
 ## Why
 
@@ -86,32 +88,48 @@ chart.destroy();
   choreography (draw-on, marker pop, bar grow, arc sweep), with `apex` / `material` / `none`
   presets and `prefers-reduced-motion` support.
 
-## Framework adapters _(coming in Phase 8)_
+## Framework adapters
 
 One core, thin idiomatic bindings:
 
 ```tsx
-// React
+// React — @vitecharts/react
 <Chart type="bar" data={data} x="month" series={[{ y: 'units' }]} animate="apex" />
 ```
 
-```html
-<!-- Any framework / none -->
-<vitecharts-chart type="line"></vitecharts-chart>
+```ts
+// Vue 3 — @vitecharts/vue
+<ViteChart :options="{ type: 'line', data, x: 'm', series: [{ y: 'v' }] }" />
 ```
 
-Planned: `@vitecharts/react`, `@vitecharts/vue`, `@vitecharts/svelte`, `@vitecharts/angular`,
-`@vitecharts/solid`, `@vitecharts/wc`.
+```html
+<!-- Any framework / none — @vitecharts/wc -->
+<vitecharts-chart id="c"></vitecharts-chart>
+<script type="module">
+  import '@vitecharts/wc';
+  document.getElementById('c').options = { type: 'line', data, x: 'm', series: [{ y: 'v' }] };
+</script>
+```
+
+Migrating from ApexCharts? `@vitecharts/compat-apex` translates an Apex options object:
+
+```ts
+import { fromApex } from '@vitecharts/compat-apex';
+new Chart('#el', fromApex(myApexOptions));
+```
+
+Svelte / Angular / Solid adapters follow the same thin-wrapper shape next.
 
 ## Monorepo
 
-| Package               | Description                                     |
-| --------------------- | ----------------------------------------------- |
-| `@vitecharts/core`    | Engine: renderer, scales, marks, compiler, anim |
-| `@vitecharts/react`   | React `<Chart />` component                     |
-| `@vitecharts/vue`     | Vue 3 `<ViteChart :options>` component          |
-| `@vitecharts/wc`      | `<vitecharts-chart>` web component              |
-| `@vitecharts/sandbox` | Dev harness (private)                           |
+| Package                   | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| `@vitecharts/core`        | Engine: renderer, scales, marks, compiler, anim |
+| `@vitecharts/react`       | React `<Chart />` component                     |
+| `@vitecharts/vue`         | Vue 3 `<ViteChart :options>` component          |
+| `@vitecharts/wc`          | `<vitecharts-chart>` web component              |
+| `@vitecharts/compat-apex` | `fromApex()` ApexCharts options translator      |
+| `@vitecharts/sandbox`     | Dev harness (private)                           |
 
 Svelte / Angular / Solid adapters land next per the roadmap.
 

@@ -6,7 +6,7 @@
 > [Vite](https://vitejs.dev) for speed and small footprint.
 >
 > **License:** Apache-2.0 (full).
-> **Status:** Phases 0–8 + brushing/sync — chart catalog, animation, interaction, brush/scrub, export, adapters.
+> **Status:** Phases 0–10 (core scope) — full engine, chart catalog, interaction, brush/sync, export, adapters, a11y, perf (LTTB), and an ApexCharts compat shim.
 > **Name:** **ViteCharts** · npm scope `@vitecharts/*`.
 
 ---
@@ -352,30 +352,29 @@ _8 export + annotation tests._
 **Exit criteria:** the same core drives each adapter; each has a mount/update/teardown test. ✅
 _(8 adapter tests across wc/react/vue.)_
 
-### Phase 9 — Performance & Accessibility Hardening
+### Phase 9 — Performance & Accessibility Hardening — 🚧 IN PROGRESS
 
 **Goal:** fast and inclusive.
 
-- Canvas backend for dense series; auto-switch heuristic + manual override.
-- Virtualization/downsampling (LTTB) for large series; web-worker layout (optional).
-- Size budgets enforced in CI; per-chart-type lazy chunks verified tree-shakeable.
-- Full keyboard navigation, ARIA roles/labels, screen-reader data table fallback,
-  focus management, high-contrast theme, reduced-motion audited everywhere.
-- Benchmarks vs ApexCharts published in docs.
+- ✅ LTTB downsampling for large line series (auto past a threshold).
+- ✅ ARIA `role="img"` + `aria-label` + `<title>` on the SVG; reduced-motion honored.
+- ⏭️ Canvas auto-switch heuristic, web-worker layout, CI size budgets, full keyboard
+  navigation + screen-reader data-table fallback, high-contrast theme, axe pass, benchmarks.
 
-**Exit criteria:** 100k-point scatter interactive at 60fps; axe + manual a11y pass.
+**Exit criteria:** 100k-point scatter interactive at 60fps; axe + manual a11y pass. \_(Downsampling
 
-### Phase 10 — Compat, Docs & 1.0
+- ARIA landed; the deeper a11y/perf audit is the remaining work.)\_
+
+### Phase 10 — Compat, Docs & 1.0 — 🚧 COMPAT SHIPPED
 
 **Goal:** adoption on-ramps and release.
 
-- `@vitecharts/compat-apex`: translate an ApexCharts options object → ViteCharts spec (best-effort,
-  documented coverage table) to ease migration.
-- VitePress docs: guides, full API reference (typedoc), live playground with code export,
-  per-chart cookbook, migration guide, theming guide, a11y guide.
-- Examples gallery mirroring Apex's demo set.
-- Stabilize public API, semver policy, deprecation policy.
-- `v1.0.0`: changesets release, provenance, npm publish, announcement.
+- ✅ `@vitecharts/compat-apex`: `fromApex(apexOptions)` → ViteCharts options (best-effort;
+  cartesian + radial series, categories, `[x,y]`/`{x,y}` data, colors, dark theme, curve,
+  title, legend). Documented in its source.
+- ✅ README quick-start, concepts, monorepo overview; `RELEASING.md`.
+- ⏭️ VitePress docs site + typedoc API reference, live playground, examples gallery,
+  API-stability/semver policy, the `v1.0.0` tag + publish.
 
 **Exit criteria:** 1.0 published; docs live; parity matrix green or consciously deferred.
 
