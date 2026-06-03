@@ -43,12 +43,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ClientOnly>
-    <div class="vc-demo">
-      <div ref="el" class="vc-demo-canvas" style="height: 300px" />
-      <button class="vc-btn" @click="toggle">{{ running ? 'Stop' : 'Start' }} streaming</button>
-    </div>
-  </ClientOnly>
+  <div class="vc-demo">
+    <div ref="el" class="vc-demo-canvas" style="height: 300px" />
+    <button class="vc-btn" @click="toggle">{{ running ? 'Stop' : 'Start' }} streaming</button>
+  </div>
 </template>
 
 <style scoped>

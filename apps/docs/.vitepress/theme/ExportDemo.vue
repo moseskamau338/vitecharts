@@ -26,17 +26,15 @@ onBeforeUnmount(() => chart && chart.destroy());
 </script>
 
 <template>
-  <ClientOnly>
-    <div class="vc-demo">
-      <div ref="el" class="vc-demo-canvas" style="height: 300px" />
-      <div class="vc-btns">
-        <button class="vc-btn" @click="chart.download('svg')">SVG</button>
-        <button class="vc-btn" @click="chart.download('png')">PNG</button>
-        <button class="vc-btn" @click="chart.download('csv')">CSV</button>
-        <button class="vc-btn" @click="chart.download('json')">JSON</button>
-      </div>
+  <div class="vc-demo">
+    <div ref="el" class="vc-demo-canvas" style="height: 300px" />
+    <div class="vc-btns">
+      <button class="vc-btn" @click="chart.download('svg')">SVG</button>
+      <button class="vc-btn" @click="chart.download('png')">PNG</button>
+      <button class="vc-btn" @click="chart.download('csv')">CSV</button>
+      <button class="vc-btn" @click="chart.download('json')">JSON</button>
     </div>
-  </ClientOnly>
+  </div>
 </template>
 
 <style scoped>

@@ -1,0 +1,73 @@
+{
+  "hash": "b317edcb",
+  "configHash": "2767283a",
+  "lockfileHash": "e23606ce",
+  "browserHash": "99eb807c",
+  "optimized": {
+    "vue": {
+      "src": "../../../../../node_modules/.pnpm/vue@3.5.35_typescript@5.9.3/node_modules/vue/dist/vue.runtime.esm-bundler.js",
+      "file": "vue.js",
+      "fileHash": "9ba1a471",
+      "needsInterop": false
+    },
+    "vitepress > @vue/devtools-api": {
+      "src": "../../../../../node_modules/.pnpm/@vue+devtools-api@7.7.9/node_modules/@vue/devtools-api/dist/index.js",
+      "file": "vitepress___@vue_devtools-api.js",
+      "fileHash": "9c22ec5b",
+      "needsInterop": false
+    },
+    "vitepress > @vueuse/core": {
+      "src": "../../../../../node_modules/.pnpm/@vueuse+core@12.8.2_typescript@5.9.3/node_modules/@vueuse/core/index.mjs",
+      "file": "vitepress___@vueuse_core.js",
+      "fileHash": "b75aea64",
+      "needsInterop": false
+    },
+    "vitepress > @vueuse/integrations/useFocusTrap": {
+      "src": "../../../../../node_modules/.pnpm/@vueuse+integrations@12.8.2_focus-trap@7.8.0_typescript@5.9.3/node_modules/@vueuse/integrations/useFocusTrap.mjs",
+      "file": "vitepress___@vueuse_integrations_useFocusTrap.js",
+      "fileHash": "8414ab6a",
+      "needsInterop": false
+    },
+    "vitepress > mark.js/src/vanilla.js": {
+      "src": "../../../../../node_modules/.pnpm/mark.js@8.11.1/node_modules/mark.js/src/vanilla.js",
+      "file": "vitepress___mark__js_src_vanilla__js.js",
+      "fileHash": "a9b2894b",
+      "needsInterop": false
+    },
+    "vitepress > minisearch": {
+      "src": "../../../../../node_modules/.pnpm/minisearch@7.2.0/node_modules/minisearch/dist/es/index.js",
+      "file": "vitepress___minisearch.js",
+      "fileHash": "cfe4f939",
+      "needsInterop": false
+    },
+    "d3-array": {
+      "src": "../../../../../node_modules/.pnpm/d3-array@3.2.4/node_modules/d3-array/src/index.js",
+      "file": "d3-array.js",
+      "fileHash": "ff22b960",
+      "needsInterop": false
+    },
+    "d3-scale": {
+      "src": "../../../../../node_modules/.pnpm/d3-scale@4.0.2/node_modules/d3-scale/src/index.js",
+      "file": "d3-scale.js",
+      "fileHash": "664626de",
+      "needsInterop": false
+    },
+    "d3-shape": {
+      "src": "../../../../../node_modules/.pnpm/d3-shape@3.2.0/node_modules/d3-shape/src/index.js",
+      "file": "d3-shape.js",
+      "fileHash": "a883de3d",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-J6XDU5QC": {
+      "file": "chunk-J6XDU5QC.js"
+    },
+    "chunk-H6ULCB3G": {
+      "file": "chunk-H6ULCB3G.js"
+    },
+    "chunk-YV3FHJUR": {
+      "file": "chunk-YV3FHJUR.js"
+    }
+  }
+}

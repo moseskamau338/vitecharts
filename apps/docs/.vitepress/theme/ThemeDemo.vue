@@ -40,12 +40,10 @@ onBeforeUnmount(() => chart && chart.destroy());
 </script>
 
 <template>
-  <ClientOnly>
-    <div class="vc-demo" :class="{ dark }">
-      <div ref="el" class="vc-demo-canvas" style="height: 300px" />
-      <button class="vc-btn" @click="toggle">Switch to {{ dark ? 'light' : 'dark' }}</button>
-    </div>
-  </ClientOnly>
+  <div class="vc-demo" :class="{ dark }">
+    <div ref="el" class="vc-demo-canvas" style="height: 300px" />
+    <button class="vc-btn" @click="toggle">Switch to {{ dark ? 'light' : 'dark' }}</button>
+  </div>
 </template>
 
 <style scoped>

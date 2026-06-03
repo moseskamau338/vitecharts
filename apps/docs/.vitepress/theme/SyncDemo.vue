@@ -39,13 +39,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ClientOnly>
-    <div class="vc-demo">
-      <p class="vc-hint">Hover either chart — the crosshair mirrors across both (shared group).</p>
-      <div ref="a" style="height: 200px" />
-      <div ref="b" style="height: 200px" />
-    </div>
-  </ClientOnly>
+  <div class="vc-demo">
+    <p class="vc-hint">Hover either chart — the crosshair mirrors across both (shared group).</p>
+    <div ref="a" style="height: 200px" />
+    <div ref="b" style="height: 200px" />
+  </div>
 </template>
 
 <style scoped>

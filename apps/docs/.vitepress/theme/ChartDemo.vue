@@ -24,11 +24,9 @@ onBeforeUnmount(() => chart && chart.destroy());
 </script>
 
 <template>
-  <ClientOnly>
-    <div class="vc-demo">
-      <div ref="el" class="vc-demo-canvas" :style="{ height: height + 'px' }" />
-    </div>
-  </ClientOnly>
+  <div class="vc-demo">
+    <div ref="el" class="vc-demo-canvas" :style="{ height: height + 'px' }" />
+  </div>
 </template>
 
 <style scoped>

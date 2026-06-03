@@ -42,13 +42,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ClientOnly>
-    <div class="vc-demo">
-      <div ref="detail" style="height: 260px" />
-      <p class="vc-hint">Drag across the overview below to zoom the detail chart above.</p>
-      <div ref="overview" style="height: 90px" />
-    </div>
-  </ClientOnly>
+  <div class="vc-demo">
+    <div ref="detail" style="height: 260px" />
+    <p class="vc-hint">Drag across the overview below to zoom the detail chart above.</p>
+    <div ref="overview" style="height: 90px" />
+  </div>
 </template>
 
 <style scoped>
