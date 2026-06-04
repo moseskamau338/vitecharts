@@ -381,7 +381,7 @@ function drawBarSeries(
     const rect = drawBar(
       sc.renderer,
       { x, y, width: barWidth, height: h },
-      { fill: seriesFill(sc, s, 0.55), opacity: s.gradient ? 1 : s.fillOpacity, radius: 2 },
+      { fill: seriesFill(sc, s, 0.55), opacity: s.gradient ? 1 : s.fillOpacity, radius: 0 },
       parent,
     );
 
@@ -510,7 +510,7 @@ function drawBoxplotSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle)
     drawBar(
       sc.renderer,
       { x: cx - boxW / 2, y: top, width: boxW, height: Math.abs(frame.y.map(q1) - top) || 1 },
-      { fill: s.color, opacity: 0.25, radius: 1 },
+      { fill: s.color, opacity: 0.25, radius: 0 },
       parent,
     );
     strokeLine(
@@ -540,7 +540,7 @@ function drawRangeBarSeries(sc: SeriesCtx, s: ResolvedSeries, parent: NodeHandle
     drawBar(
       sc.renderer,
       { x: cx - barW / 2, y: yTop, width: barW, height: h },
-      { fill: seriesFill(sc, s, 0.55), opacity: s.gradient ? 1 : s.fillOpacity, radius: 3 },
+      { fill: seriesFill(sc, s, 0.55), opacity: s.gradient ? 1 : s.fillOpacity, radius: 0 },
       parent,
     );
     record(sc, s, row[sc.spec.x], hi, cx, yTop);
@@ -738,7 +738,7 @@ function renderHorizontalBars(ctx: ChartContext): void {
       const rect = drawBar(
         renderer,
         { x: bx, y: by, width: bw, height: barH },
-        { fill, opacity: s.gradient ? 1 : s.fillOpacity, radius: 2 },
+        { fill, opacity: s.gradient ? 1 : s.fillOpacity, radius: 0 },
         plot,
       );
       if (animation.enter) animation.track(animateAttr(rect, 'width', 0, bw, cfg, { delay }));
