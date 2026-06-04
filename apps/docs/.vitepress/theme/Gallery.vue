@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
-import { useData } from 'vitepress';
+import { useData, withBase } from 'vitepress';
 import { Chart } from '@vitecharts/core';
 import * as data from '../data/datasets';
 
@@ -220,7 +220,7 @@ async function copyCode() {
                 </div>
                 <pre class="vc-code-body"><code v-html="codeHtml"></code></pre>
               </div>
-              <a class="vc-api-btn" href="/api/options">Full API for this type →</a>
+              <a class="vc-api-btn" :href="withBase('/api')">Full API for this type →</a>
             </div>
           </div>
         </div>

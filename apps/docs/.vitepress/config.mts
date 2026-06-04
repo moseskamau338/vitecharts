@@ -6,6 +6,8 @@ const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 export default defineConfig({
   title: 'ViteCharts',
   description: 'Animated, framework-agnostic charts with the feel of ApexCharts.',
+  // Served from https://moseskamau338.github.io/vitecharts/ on GitHub Pages.
+  base: '/vitecharts/',
   cleanUrls: true,
   lastUpdated: true,
   markdown: {
@@ -82,7 +84,7 @@ export default defineConfig({
     socialLinks: [{ icon: 'github', link: 'https://github.com/moseskamau338/vitecharts' }],
     footer: {
       message: 'Released under the Apache-2.0 License.',
-      copyright: 'Copyright © 2026 The ViteCharts Authors',
+      copyright: 'Copyright © 2026 Moses Kamau',
     },
     search: { provider: 'local' },
   },
