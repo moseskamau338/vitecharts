@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "description": "ViteCharts core engine — renderer abstraction, scene graph, scales, and chart types.",
   "license": "Apache-2.0",
-  "author": "The ViteCharts Authors",
-  "homepage": "https://github.com/vitecharts/vitecharts#readme",
-  "bugs": "https://github.com/vitecharts/vitecharts/issues",
+  "author": "Moses Kamau",
+  "homepage": "https://github.com/moseskamau338/vitecharts#readme",
+  "bugs": "https://github.com/moseskamau338/vitecharts/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vitecharts/vitecharts.git",
+    "url": "git+https://github.com/moseskamau338/vitecharts.git",
     "directory": "packages/core"
   },
   "keywords": [
