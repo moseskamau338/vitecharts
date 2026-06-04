@@ -1,6 +1,7 @@
 import { animateFadeIn } from '../anim/choreography.js';
 import { isNumber } from '../util/guards.js';
 import type { ChartContext, ChartType } from '../types.js';
+import type { ChartPlugin } from './registry.js';
 
 function hex(c: string): [number, number, number] {
   const n = parseInt(c.replace('#', ''), 16);
@@ -100,3 +101,6 @@ function render(ctx: ChartContext): void {
 }
 
 export const heatmapChart: ChartType = { render };
+
+/** Registrable plugin: heatmap. */
+export const heatmap: ChartPlugin = { types: { heatmap: heatmapChart } };

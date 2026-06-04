@@ -42,6 +42,30 @@ npm install @vitecharts/core
 
 > Not yet published to npm — install from source while we approach `1.0`.
 
+### Tree-shakeable build
+
+`@vitecharts/core` registers every chart type on import (zero-config). For the
+smallest bundle, import from **`@vitecharts/core/lean`** and register only the
+chart families you use — the rest are dropped by your bundler:
+
+```ts
+import { Chart, registerCharts, cartesian } from '@vitecharts/core/lean';
+
+registerCharts(cartesian); // line / area / bar / scatter / candlestick / boxplot / range
+// registerCharts(radial); // pie / donut / polarArea / radialBar / radar
+// registerCharts(funnel, heatmap);
+
+new Chart('#el', { type: 'line', data, x: 'm', series: [{ y: 'v' }] });
+```
+
+You can also register a custom type: `registerChart('mychart', { render })`.
+
+| Import                          | Gzip   |
+| ------------------------------- | ------ |
+| `@vitecharts/core` (everything) | ~34 kB |
+| `lean` + `cartesian`            | ~31 kB |
+| `lean` + `radial` (pie only)    | ~27 kB |
+
 ## Quick start
 
 ```ts

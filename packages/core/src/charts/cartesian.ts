@@ -17,6 +17,7 @@ import { lttb } from '../util/downsample.js';
 import type { ChartContext, ChartType, ResolvedSeries, Row } from '../types.js';
 import type { NodeHandle, Renderer } from '../renderer/types.js';
 import type { InteractionModel, PlotPoint, XGroup } from '../interaction/types.js';
+import type { ChartPlugin } from './registry.js';
 
 const MARKER_RADIUS = 4;
 const BAR_GAP = 0.85; // fraction of the available slot a bar fills
@@ -722,3 +723,17 @@ function render(ctx: ChartContext): void {
 
 /** One renderer for every cartesian chart type; per-series `type` enables combos. */
 export const cartesianChart: ChartType = { render };
+
+/** Registrable plugin: line, area, bar, scatter, candlestick, boxplot, range. */
+export const cartesian: ChartPlugin = {
+  types: {
+    line: cartesianChart,
+    area: cartesianChart,
+    bar: cartesianChart,
+    scatter: cartesianChart,
+    candlestick: cartesianChart,
+    boxplot: cartesianChart,
+    rangeBar: cartesianChart,
+    rangeArea: cartesianChart,
+  },
+};

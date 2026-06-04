@@ -1,6 +1,7 @@
 import { animateFadeIn } from '../anim/choreography.js';
 import { isNumber } from '../util/guards.js';
 import type { ChartContext, ChartType, CompiledSpec } from '../types.js';
+import type { ChartPlugin } from './registry.js';
 
 /** Each row is a funnel stage: label from `x`, value from the first series. */
 function stages(spec: CompiledSpec): { label: unknown; value: number }[] {
@@ -51,3 +52,6 @@ function render(ctx: ChartContext): void {
 }
 
 export const funnelChart: ChartType = { render };
+
+/** Registrable plugin: funnel. */
+export const funnel: ChartPlugin = { types: { funnel: funnelChart } };

@@ -4,6 +4,7 @@ import { buildScale } from '../scales/index.js';
 import { isNumber } from '../util/guards.js';
 import type { ChartContext, ChartType, CompiledSpec } from '../types.js';
 import type { NodeHandle, Renderer } from '../renderer/types.js';
+import type { ChartPlugin } from './registry.js';
 
 const TAU = Math.PI * 2;
 const GAUGE_SWEEP = 1.5 * Math.PI; // 270° gauge arc
@@ -211,3 +212,14 @@ export const pieChart: ChartType = { render: renderPie };
 export const polarAreaChart: ChartType = { render: renderPolarArea };
 export const radialBarChart: ChartType = { render: renderRadialBar };
 export const radarChart: ChartType = { render: renderRadar };
+
+/** Registrable plugin: pie, donut, polarArea, radialBar, radar. */
+export const radial: ChartPlugin = {
+  types: {
+    pie: pieChart,
+    donut: pieChart,
+    polarArea: polarAreaChart,
+    radialBar: radialBarChart,
+    radar: radarChart,
+  },
+};

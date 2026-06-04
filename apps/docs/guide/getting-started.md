@@ -77,5 +77,26 @@ import { Chart } from '@vitecharts/react';
 <Chart type="line" data={sales} x="month" series={[{ y: 'sales' }]} animate="apex" />;
 ```
 
-See [Adapters](/adapters) for Vue and the Web Component. Next: the [Concepts](/guide/concepts)
-behind the engine, or jump into the [chart gallery](/charts/line).
+See [Adapters](/adapters) for Vue and the Web Component.
+
+## Smaller bundles (tree-shaking)
+
+The default `@vitecharts/core` registers every chart type so things work with no setup. For
+the leanest build, import from **`@vitecharts/core/lean`** and register only the chart
+families you use — your bundler drops the rest:
+
+```ts
+import { Chart, registerCharts, cartesian } from '@vitecharts/core/lean';
+
+registerCharts(cartesian); // line / area / bar / scatter / candlestick / boxplot / range
+// registerCharts(radial);  // pie / donut / polarArea / radialBar / radar
+// registerCharts(funnel, heatmap);
+
+new Chart('#el', { type: 'line', data: sales, x: 'month', series: [{ y: 'sales' }] });
+```
+
+A line-only app is **~27–31 kB gzipped** (incl. d3) versus ~34 kB for the full catalog. You
+can also register a custom type with `registerChart('mychart', { render })`.
+
+Next: the [Concepts](/guide/concepts) behind the engine, or jump into the
+[chart gallery](/charts/line).

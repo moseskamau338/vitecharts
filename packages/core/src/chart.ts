@@ -112,7 +112,13 @@ export class Chart {
     });
 
     const chart = registry[spec.type];
-    if (!chart) throw new Error(`ViteCharts: unknown chart type "${spec.type}"`);
+    if (!chart) {
+      throw new Error(
+        `ViteCharts: chart type "${spec.type}" is not registered. ` +
+          `Import { Chart } from '@vitecharts/core' (registers all types), or ` +
+          `registerCharts(...) the plugin you need from '@vitecharts/core/lean'.`,
+      );
+    }
 
     if (this.firstRender) this.setupInteraction(container, options, spec.theme);
 

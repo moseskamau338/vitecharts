@@ -1,4 +1,15 @@
-// Entry point
+// Entry point. This module registers every built-in chart type on import, so
+// `new Chart(el, { type: 'line' })` works zero-config. For a tree-shakeable
+// build, import from `@vitecharts/core/lean` and registerCharts(...) only what
+// you use.
+import { registerCharts } from './charts/registry.js';
+import { cartesian } from './charts/cartesian.js';
+import { radial } from './charts/radial.js';
+import { funnel } from './charts/funnel.js';
+import { heatmap } from './charts/heatmap.js';
+
+registerCharts(cartesian, radial, funnel, heatmap);
+
 export { Chart } from './chart.js';
 
 // Renderers
@@ -73,8 +84,12 @@ export { resolveTheme, themeFromCss, lightTheme, darkTheme } from './theme.js';
 export type { ResolvedTheme, ThemeName, ThemeOption } from './theme.js';
 export { DEFAULT_COLORS } from './palette.js';
 
-// Chart registry
-export { registry } from './charts/registry.js';
+// Chart registry + registration API (plus the registrable plugins)
+export { registry, registerChart, registerCharts, type ChartPlugin } from './charts/registry.js';
+export { cartesian, cartesianChart } from './charts/cartesian.js';
+export { radial, pieChart, polarAreaChart, radialBarChart, radarChart } from './charts/radial.js';
+export { funnel, funnelChart } from './charts/funnel.js';
+export { heatmap, heatmapChart } from './charts/heatmap.js';
 
 // Interaction + events
 export { Emitter } from './events.js';

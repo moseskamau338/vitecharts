@@ -23,7 +23,10 @@
     "animation"
   ],
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/index.js",
+    "./dist/index.cjs"
+  ],
   "files": [
     "dist"
   ],
@@ -47,13 +50,23 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./lean": {
+      "import": {
+        "types": "./dist/lean.d.ts",
+        "default": "./dist/lean.js"
+      },
+      "require": {
+        "types": "./dist/lean.d.cts",
+        "default": "./dist/lean.cjs"
+      }
     }
   },
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check:exports": "publint --strict && attw --pack ."
+    "check:exports": "publint --strict && attw --pack --profile node16 ."
   },
   "dependencies": {
     "d3-array": "^3.2.4",
