@@ -1,7 +1,9 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useData } from 'vitepress';
 import { Chart } from '@vitecharts/core';
 
+const { isDark } = useData();
 const a = ref(null);
 const b = ref(null);
 let ca = null;
@@ -20,6 +22,7 @@ onMounted(() => {
     x: 'h',
     series: [{ y: 'cpu', name: 'CPU %', curve: 'smooth' }],
     group: 'metrics',
+    theme: 'css',
     animate: false,
   });
   cb = new Chart(b.value, {
@@ -28,8 +31,14 @@ onMounted(() => {
     x: 'h',
     series: [{ y: 'mem', name: 'Memory %', curve: 'smooth' }],
     group: 'metrics',
+    theme: 'css',
     animate: false,
   });
+});
+
+watch(isDark, () => {
+  ca && ca.update({});
+  cb && cb.update({});
 });
 
 onBeforeUnmount(() => {

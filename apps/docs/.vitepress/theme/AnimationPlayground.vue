@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { useData } from 'vitepress';
 import { Chart } from '@vitecharts/core';
 
@@ -32,7 +32,7 @@ function build() {
     data,
     x: 'q',
     series: [{ y: 'v', name: 'Value' }],
-    theme: isDark.value ? 'dark' : 'light',
+    theme: 'css',
     animate: { duration: cfg.duration, stagger: cfg.stagger, easing: cfg.easing },
   };
 }
@@ -43,6 +43,7 @@ function replay() {
 }
 
 onMounted(replay);
+watch(isDark, () => chart && chart.update({}));
 onBeforeUnmount(() => chart && chart.destroy());
 </script>
 

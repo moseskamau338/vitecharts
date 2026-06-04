@@ -9,16 +9,15 @@ const items = galleryItems;
 const containers = ref([]);
 let charts = [];
 
-const theme = () => (isDark.value ? 'dark' : 'light');
-
 onMounted(() => {
   items.forEach((item, i) => {
     const el = containers.value[i];
-    if (el) charts.push(new Chart(el, { ...item.options, theme: theme() }));
+    if (el) charts.push(new Chart(el, { ...item.options, theme: 'css' }));
   });
 });
 
-watch(isDark, () => charts.forEach((c) => c.update({ theme: theme() })));
+// Re-render so charts re-read the --vc-* tokens when the theme flips.
+watch(isDark, () => charts.forEach((c) => c.update({})));
 
 onBeforeUnmount(() => {
   charts.forEach((c) => c.destroy());
@@ -29,7 +28,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="vc-gallery-page">
     <div class="vc-gallery-head">
-      <h1>Gallery</h1>
+      <h1>A chart for <em>every</em> story.</h1>
       <p class="vc-gallery-sub">
         A dozen charts, one core. Every tile is a <strong>live, animated</strong> ViteCharts
         instance that follows the page theme — hover them, toggle dark mode, and watch them
@@ -39,9 +38,11 @@ onBeforeUnmount(() => {
     </div>
     <div class="vc-gallery">
       <div class="vc-card" v-for="(item, i) in items" :key="i">
-        <h3>{{ item.title }}</h3>
-        <p>{{ item.caption }}</p>
-        <div class="vc-card-canvas" :ref="(el) => (containers[i] = el)" style="height: 220px" />
+        <div class="vc-card-canvas" :ref="(el) => (containers[i] = el)" style="height: 200px" />
+        <div class="vc-card-foot">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.caption }}</p>
+        </div>
       </div>
     </div>
   </div>

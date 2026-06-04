@@ -1,7 +1,9 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useData } from 'vitepress';
 import { Chart } from '@vitecharts/core';
 
+const { isDark } = useData();
 const overview = ref(null);
 const detail = ref(null);
 let oChart = null;
@@ -18,6 +20,7 @@ onMounted(() => {
     data,
     x: 't',
     series: [{ y: 'v', name: 'Value', curve: 'smooth' }],
+    theme: 'css',
     animate: false,
   });
   oChart = new Chart(overview.value, {
@@ -28,11 +31,17 @@ onMounted(() => {
     brush: true,
     tooltip: false,
     height: 90,
+    theme: 'css',
     animate: false,
   });
   oChart.on('brushSelection', ({ x0, x1 }) => {
     dChart.update({ axes: { x: { min: Number(x0), max: Number(x1) } } });
   });
+});
+
+watch(isDark, () => {
+  oChart && oChart.update({});
+  dChart && dChart.update({});
 });
 
 onBeforeUnmount(() => {

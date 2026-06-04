@@ -1,7 +1,9 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useData } from 'vitepress';
 import { Chart } from '@vitecharts/core';
 
+const { isDark } = useData();
 const el = ref(null);
 let chart = null;
 
@@ -19,9 +21,11 @@ onMounted(() => {
     x: 'm',
     series: [{ y: 'v', name: 'Sales', curve: 'smooth' }],
     markers: true,
+    theme: 'css',
     animate: 'apex',
   });
 });
+watch(isDark, () => chart && chart.update({}));
 onBeforeUnmount(() => chart && chart.destroy());
 </script>
 

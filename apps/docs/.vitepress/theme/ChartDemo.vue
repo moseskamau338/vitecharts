@@ -15,8 +15,8 @@ const el = ref(null);
 let chart = null;
 
 function withTheme(opts) {
-  // Respect an explicit theme; otherwise follow the page (light/dark).
-  return opts.theme ? opts : { ...opts, theme: isDark.value ? 'dark' : 'light' };
+  // Respect an explicit theme; otherwise read the page's --vc-* CSS tokens.
+  return opts.theme ? opts : { ...opts, theme: 'css' };
 }
 
 onMounted(() => {
@@ -29,9 +29,8 @@ watch(
   { deep: true },
 );
 
-watch(isDark, () => {
-  if (chart && !props.options.theme) chart.update({ theme: isDark.value ? 'dark' : 'light' });
-});
+// Re-render so the chart re-reads --vc-* when the page theme flips.
+watch(isDark, () => chart && chart.update({}));
 
 onBeforeUnmount(() => chart && chart.destroy());
 </script>
