@@ -1,6 +1,6 @@
 {
   "name": "@vitecharts/wc",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "ViteCharts Web Component — <vitecharts-chart> for any framework or none.",
   "license": "Apache-2.0",
   "type": "module",
