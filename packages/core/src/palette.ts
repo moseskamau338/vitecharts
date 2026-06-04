@@ -1,16 +1,15 @@
 /**
- * Default categorical palette — a refined, modern set (indigo-led) that reads
- * as professional in both light and dark themes.
+ * Default categorical palette — a warm, editorial set (terracotta-led) that
+ * reads as designed-by-default in light and warm-dark themes. Override per chart
+ * with `colors`, a theme object, or CSS variables (`theme: 'css'`).
  */
 export const DEFAULT_COLORS = [
-  '#6366f1', // indigo
-  '#06b6d4', // cyan
-  '#f59e0b', // amber
-  '#ec4899', // pink
-  '#10b981', // emerald
-  '#8b5cf6', // violet
-  '#ef4444', // red
-  '#3b82f6', // blue
-  '#14b8a6', // teal
-  '#f97316', // orange
+  '#C75D3A', // terracotta
+  '#E0A552', // ochre
+  '#6F9E8E', // sage teal
+  '#9C5E78', // dusty plum
+  '#5B7DA6', // dusty blue
+  '#D6B441', // mustard
+  '#8C9B5A', // olive
+  '#BE8268', // clay tan
 ];

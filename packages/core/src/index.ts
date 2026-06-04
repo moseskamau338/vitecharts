@@ -69,7 +69,7 @@ export {
 } from './anim/index.js';
 
 // Theme + palette
-export { resolveTheme, lightTheme, darkTheme } from './theme.js';
+export { resolveTheme, themeFromCss, lightTheme, darkTheme } from './theme.js';
 export type { ResolvedTheme, ThemeName, ThemeOption } from './theme.js';
 export { DEFAULT_COLORS } from './palette.js';
 

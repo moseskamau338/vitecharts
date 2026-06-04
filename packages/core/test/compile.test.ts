@@ -22,7 +22,7 @@ describe('compileSpec', () => {
 
   it('applies the dark theme', () => {
     const spec = compileSpec({ ...base, theme: 'dark' });
-    expect(spec.theme.background).toBe('#1a1b26');
+    expect(spec.theme.background).toBe('#241E1A');
   });
 
   it('lets colors override the theme palette', () => {

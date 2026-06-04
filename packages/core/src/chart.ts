@@ -14,7 +14,7 @@ import type { ChartEventMap, PlotBounds } from './interaction/types.js';
 import { effect, signal, type Signal } from './reactive/signal.js';
 import { SvgRenderer } from './renderer/svg.js';
 import { compileSpec } from './spec/compile.js';
-import type { ResolvedTheme } from './theme.js';
+import { themeFromCss, type ResolvedTheme } from './theme.js';
 import type { ChartOptions, Row, SeriesOption } from './types.js';
 
 const DEFAULT_HEIGHT = 360;
@@ -101,7 +101,11 @@ export class Chart {
   }
 
   private draw(container: HTMLElement, options: ChartOptions, width: number, height: number): void {
-    const drawOptions = this.applyZoom(options);
+    let drawOptions = this.applyZoom(options);
+    // `theme: 'css'` reads --vc-* custom properties from the container.
+    if (drawOptions.theme === 'css') {
+      drawOptions = { ...drawOptions, theme: themeFromCss(container) };
+    }
     const spec = compileSpec(drawOptions);
     spec.series.forEach((s, i) => {
       s.hidden = this.hidden.has(i);
@@ -143,6 +147,7 @@ export class Chart {
     });
 
     this.prevGeom = snapshot;
+    this.tooltip?.setTheme(spec.theme);
     this.applyA11y(options, spec.type, spec.series.length);
 
     this.legend?.setItems(

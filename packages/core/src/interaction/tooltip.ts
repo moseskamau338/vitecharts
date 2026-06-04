@@ -25,11 +25,10 @@ function defaultRenderer(): TooltipRenderer {
 
 const STYLE = `
 position:absolute; pointer-events:none; z-index:10;
-background:#fff; border:1px solid #e3e6ea; border-radius:8px;
-box-shadow:0 4px 14px rgba(0,0,0,.1); padding:8px 10px; font-size:12px;
-font-family:system-ui,sans-serif; color:#111827; opacity:0;
-transition:opacity .12s ease, transform .12s ease; transform:translateY(4px);
-white-space:nowrap;`;
+border-radius:3px; box-shadow:0 10px 30px rgba(0,0,0,.22);
+padding:9px 11px; font-size:12px; line-height:1.45; opacity:0;
+transition:opacity .14s ease, transform .14s ease; transform:translateY(4px);
+white-space:nowrap; font-variant-numeric:tabular-nums;`;
 
 /** Floating HTML tooltip positioned over the chart container. */
 export class Tooltip {
@@ -41,10 +40,9 @@ export class Tooltip {
     this.el = document.createElement('div');
     this.el.className = 'vitecharts-tooltip';
     this.el.setAttribute('style', STYLE);
-    if (theme.background !== '#ffffff') {
-      this.el.style.background = theme.background;
-      this.el.style.color = theme.labelColor;
-    }
+    this.el.style.background = theme.tooltipBg;
+    this.el.style.color = theme.tooltipColor;
+    this.el.style.fontFamily = theme.fontFamily;
     container.appendChild(this.el);
   }
 
@@ -57,6 +55,13 @@ export class Tooltip {
     const offset = 12;
     this.el.style.left = `${x + offset}px`;
     this.el.style.top = `${Math.max(0, y - rect.height - offset)}px`;
+  }
+
+  /** Update colors when the theme changes (e.g. dark-mode toggle). */
+  setTheme(theme: ResolvedTheme): void {
+    this.el.style.background = theme.tooltipBg;
+    this.el.style.color = theme.tooltipColor;
+    this.el.style.fontFamily = theme.fontFamily;
   }
 
   hide(): void {
