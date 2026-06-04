@@ -1,8 +1,16 @@
 {
   "name": "@vitecharts/vue",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Vue 3 bindings for ViteCharts.",
   "license": "Apache-2.0",
+  "author": "Moses Kamau",
+  "homepage": "https://github.com/moseskamau338/vitecharts#readme",
+  "bugs": "https://github.com/moseskamau338/vitecharts/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moseskamau338/vitecharts.git",
+    "directory": "packages/vue"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [

@@ -1,8 +1,16 @@
 {
   "name": "@vitecharts/compat-apex",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Best-effort translation of ApexCharts options to ViteCharts options.",
   "license": "Apache-2.0",
+  "author": "Moses Kamau",
+  "homepage": "https://github.com/moseskamau338/vitecharts#readme",
+  "bugs": "https://github.com/moseskamau338/vitecharts/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moseskamau338/vitecharts.git",
+    "directory": "packages/compat-apex"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [

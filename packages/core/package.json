@@ -1,6 +1,6 @@
 {
   "name": "@vitecharts/core",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "ViteCharts core engine — renderer abstraction, scene graph, scales, and chart types.",
   "license": "Apache-2.0",
   "author": "Moses Kamau",
