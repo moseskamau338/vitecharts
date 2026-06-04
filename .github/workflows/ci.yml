@@ -46,6 +46,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Build first so dependent packages can resolve @vitecharts/core's emitted
+      # types (compat-apex/react/vue/wc import it from dist) during typecheck.
+      - name: Build
+        run: pnpm build
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -57,9 +62,6 @@ jobs:
 
       - name: Test
         run: pnpm test
-
-      - name: Build
-        run: pnpm build
 
       - name: Verify package exports
         run: pnpm check:exports
