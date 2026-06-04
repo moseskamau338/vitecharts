@@ -128,12 +128,27 @@ export class Chart {
     const enter = this.firstRender;
     const snapshot = new Map<string, number[]>();
 
+    // Reserve room for the legend before sizing the plot, so the SVG + legend
+    // together fit the container instead of the legend overflowing past it.
+    let plotW = width;
+    let plotH = height;
+    if (this.legend) {
+      this.legend.setItems(
+        spec.series.map((s) => ({ name: s.name, color: s.color, hidden: s.hidden })),
+      );
+      if (this.legend.position === 'left' || this.legend.position === 'right') {
+        plotW = Math.max(0, width - this.legend.el.offsetWidth);
+      } else {
+        plotH = Math.max(0, height - this.legend.el.offsetHeight);
+      }
+    }
+
     this.renderer.clear();
-    this.renderer.resize(width, height);
+    this.renderer.resize(plotW, plotH);
     chart.render({
       renderer: this.renderer,
-      width,
-      height,
+      width: plotW,
+      height: plotH,
       spec,
       animation: {
         config,
@@ -155,10 +170,6 @@ export class Chart {
     this.prevGeom = snapshot;
     this.tooltip?.setTheme(spec.theme);
     this.applyA11y(options, spec.type, spec.series.length);
-
-    this.legend?.setItems(
-      spec.series.map((s) => ({ name: s.name, color: s.color, hidden: s.hidden })),
-    );
     this.firstRender = false;
   }
 

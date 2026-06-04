@@ -19,7 +19,7 @@ export class Legend {
 
   constructor(
     container: HTMLElement,
-    private readonly position: LegendPosition,
+    readonly position: LegendPosition,
     theme: ResolvedTheme,
     private readonly onToggle: (index: number) => void,
   ) {
