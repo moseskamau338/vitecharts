@@ -129,6 +129,8 @@ export interface ChartOptions {
   markers?: boolean;
   /** Stack area/bar series instead of overlaying/grouping them. */
   stack?: boolean;
+  /** Draw bars horizontally (value on the x axis, categories on the y axis). */
+  horizontal?: boolean;
   /** Tooltip: `true`/`false`, or `{ shared, render }`. Defaults to enabled. */
   tooltip?: TooltipOption;
   /** Interactive legend: `true`/`false`, or `{ position }`. Defaults to disabled. */
@@ -200,6 +202,7 @@ export interface CompiledSpec {
   theme: ResolvedTheme;
   markers: boolean;
   stacked: boolean;
+  horizontal: boolean;
   innerRadius: number;
   annotations: Annotation[];
   dataLabels: boolean;

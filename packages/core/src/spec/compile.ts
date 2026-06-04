@@ -79,6 +79,7 @@ export function compileSpec(options: ChartOptions): CompiledSpec {
     theme,
     markers: options.markers ?? false,
     stacked: options.stack ?? false,
+    horizontal: options.horizontal ?? false,
     innerRadius: options.innerRadius ?? (options.type === 'donut' ? 0.6 : 0),
     annotations: options.annotations ?? [],
     dataLabels: options.dataLabels ?? false,

@@ -660,8 +660,108 @@ function drawAnnotations(ctx: ChartContext, frame: Frame): void {
   }
 }
 
+/** Horizontal bars: value on the x axis, categories on the y axis. */
+function renderHorizontalBars(ctx: ChartContext): void {
+  const { renderer, width, height, spec, animation } = ctx;
+  const { padding, theme } = spec;
+  const left = padding.left;
+  const right = width - padding.right;
+  const top = padding.top;
+  const bottom = height - padding.bottom;
+  const cfg = animation.config;
+
+  const cats = [...new Set(spec.data.map((r) => String(r[spec.x])))];
+  const y = buildScale(cats, [top, bottom], { type: 'band', padding: 0.18 });
+  const x = buildScale(valueDomain(ctx, spec.stacked), [left, right], {
+    type: 'linear',
+    zero: true,
+  });
+
+  const labelAttrs = (anchor: string) => ({
+    'text-anchor': anchor,
+    'font-size': 11,
+    fill: theme.labelColor,
+    'font-family': theme.fontFamily,
+  });
+
+  // grid (vertical) + value axis labels along the bottom
+  const grid = renderer.group({ class: 'vitecharts-grid' });
+  for (const tick of x.ticks(spec.xAxis.ticks)) {
+    const px = x.map(tick);
+    renderer.line({ x1: px, x2: px, y1: top, y2: bottom, stroke: theme.gridColor }, grid);
+    renderer.text(String(tick), { x: px, y: bottom + 16, ...labelAttrs('middle') }, grid);
+  }
+  // category labels down the left
+  const yaxis = renderer.group({ class: 'vitecharts-yaxis' });
+  for (const cat of cats) {
+    renderer.text(
+      cat,
+      { x: left - 8, y: y.map(cat) + y.bandwidth / 2 + 4, ...labelAttrs('end') },
+      yaxis,
+    );
+  }
+
+  const plot = renderer.group({ class: 'vitecharts-series' });
+  const stacks = spec.stacked ? stackSeries(ctx) : null;
+  const barSeries = spec.series.filter((s) => s.type === 'bar' && !s.hidden);
+  const x0 = x.map(0);
+  let barIndex = 0;
+
+  for (let si = 0; si < spec.series.length; si++) {
+    const s = spec.series[si]!;
+    if (s.hidden || s.type !== 'bar') continue;
+    const stack = stacks?.get(s.y);
+    const slot = stack ? y.bandwidth : y.bandwidth / barSeries.length;
+    const barH = slot * BAR_GAP;
+    const delay = cfg.delay + si * cfg.stagger;
+
+    spec.data.forEach((row, i) => {
+      const v = row[s.y];
+      if (!isNumber(v)) return;
+      const bandTop = y.map(row[spec.x]);
+      const sp = stack?.[i];
+      const xa = x.map(sp ? sp.y0 : 0);
+      const xb = x.map(sp ? sp.y1 : v);
+      const bx = Math.min(xa, xb);
+      const bw = Math.abs(xb - xa);
+      const by = (stack ? bandTop : bandTop + barIndex * slot) + (slot - barH) / 2;
+      const fill =
+        s.gradient && renderer.gradient
+          ? renderer.gradient(
+              [
+                { offset: 0, color: s.color, opacity: s.fillOpacity },
+                { offset: 1, color: s.color, opacity: 0.55 },
+              ],
+              false,
+            )
+          : s.color;
+      const rect = drawBar(
+        renderer,
+        { x: bx, y: by, width: bw, height: barH },
+        { fill, opacity: s.gradient ? 1 : s.fillOpacity, radius: 2 },
+        plot,
+      );
+      if (animation.enter) animation.track(animateAttr(rect, 'width', 0, bw, cfg, { delay }));
+      if (spec.dataLabels) {
+        renderer.text(
+          String(v),
+          { x: bx + bw + 5, y: by + barH / 2 + 4, ...labelAttrs('start') },
+          plot,
+        );
+      }
+    });
+    barIndex++;
+  }
+  void x0;
+  ctx.scene.setModel({ bounds: { left, right, top, bottom }, groups: [] });
+}
+
 function render(ctx: ChartContext): void {
   const { renderer, spec, animation } = ctx;
+  if (spec.horizontal && spec.series.some((s) => s.type === 'bar' && !s.hidden)) {
+    renderHorizontalBars(ctx);
+    return;
+  }
   const bandX = spec.series.some((s) => BAND_TYPES.has(s.type) && !s.hidden);
   const frame = drawFrame(ctx, bandX, spec.stacked);
   const plot = renderer.group({ class: 'vitecharts-series' });
